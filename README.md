@@ -18,8 +18,9 @@ bu e-postayı admin olarak atayan SQL'i birleştirir. SQL Editor > New query'de
 çıkmalıdır. Ayrı scriptleri yeniden çalıştırmanız gerekmez.
 
 Anahtar yerel `.env.local` dosyasına kaydedilir; GitHub'a gönderilmez.
-SQL kurulumu doğrulanana kadar yerel önizleme örnek modunda tutulur.
-Sonrasında `VITE_DEMO_MODE=false` kullanılır ve katalog Supabase'den okunur.
+SQL kurulumu 14 Ekim 2026 tarihinde public REST API üzerinden doğrulandı.
+Yerel `.env.local` içinde `VITE_DEMO_MODE=false` kullanılır; katalog Supabase'den okunur.
+9 örnek ürün veritabanında yer alır; örnekler yetkili admin panelinden silinebilir.
 Vercel'de aynı URL ve public key'i Environment Variables'a ekleyin, Redeploy yapın.
 
 ## 1. Önce SQL
