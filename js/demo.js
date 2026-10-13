@@ -21,10 +21,3 @@ export const products = [
   is_sample: true, is_active: true,
   description: 'Önizleme için örnek suni deri kaydıdır. Görsel, ölçü ve stok miktarları temsilidir. Gerçek ürün bilgileri yönetim panelinden girilecektir.'
 }));
-export const storageKey = 'sayder-hidden-samples-v1';
-export function hiddenSamples() {
-  try { const ids = JSON.parse(localStorage.getItem(storageKey) || '[]'); return Array.isArray(ids) ? ids : []; } catch { return []; }
-}
-export const visibleProducts = () => products.filter(p => !hiddenSamples().includes(p.id));
-export function deleteSample(id) { localStorage.setItem(storageKey, JSON.stringify([...new Set([...hiddenSamples(), id])])); }
-export function restoreSamples() { localStorage.removeItem(storageKey); }

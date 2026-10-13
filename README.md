@@ -138,14 +138,17 @@ sonrası sonucu panelde kontrol edin.
 
 ### Silinebilir örnekler
 
-Yerel önizlemede `VITE_DEMO_MODE=true` ile 9 örnek gösterilir. "Örnekleri yönet"
-butonuyla kartlardaki "Örneği sil" kontrolü açılır. Silme sadece bu tarayıcıya
-localStorage ile kaydedilir ve sayfa yenilendiğinde korunur; "Geri yükle" geri getirir.
-Bu işlem üretim veritabanını etkilemez. Tarayıcı depolaması temizlenirse örnekler geri gelir.
+Yerel önizlemede `VITE_DEMO_MODE=true` ile 9 örnek gösterilir. Bu önizleme salt
+okunurdur; ziyaretçi sayfasında ürün/örnek düzenleme veya silme kontrolü yoktur.
+Örnekleri yönetmek için Supabase'e bağlanın, sample-data.sql dosyasını çalıştırın
+ve yetkili admin hesabıyla /admin.html üzerinden işlem yapın. İstemci API'si
+doğrudan çağrılsa bile RLS yalnız admin_users listesine alınan hesaba yazma izni verir.
 
 Canlı Supabase'e isteğe bağlı örnek veri eklemek için setup.sql sonrasında
 `supabase/sample-data.sql` dosyasını çalıştırın. Örneklerin kodu ORNEK-SYD- ile başlar,
 is_sample=true işaretlidir ve panelden normal ürün gibi silinebilir.
+Örneği gerçek ürüne dönüştürürken kendi fotoğrafınızı, kodunuzu ve stok miktarını
+girin; "Örnek ürün olarak işaretle" kutusunu kaldırın.
 Seed tekrar çalıştırılırsa mevcut ürünün değişmiş stok miktarını ezmez;
 silinmiş örnekleri geri ekler. Otomatik çalışmaz.
 Tüm örnekleri SQL Editor'den kaldırmak için `delete from public.products where is_sample = true;`

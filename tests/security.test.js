@@ -93,6 +93,13 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
   const samples = await readFile(new URL('../supabase/sample-data.sql', import.meta.url), 'utf8');
   await db.exec(samples); await db.exec(samples);
   assert.equal((await db.query('select * from public.products where is_sample')).rows.length, 9);
+  await as('anon', null, async () => {
+    await assert.rejects(db.query('delete from public.products where is_sample'));
+  });
+  await as('authenticated', user, async () => {
+    assert.equal((await db.query('delete from public.products where is_sample returning id')).rows.length, 0);
+    assert.equal((await db.query('update public.products set stock_quantity=999 where is_sample returning id')).rows.length, 0);
+  });
   await as('authenticated', admin, async () => {
     await db.query("update public.products set stock_quantity=12.75 where product_code='ORNEK-SYD-101'");
     assert.equal(Number((await db.query("select stock_quantity from public.products where product_code='ORNEK-SYD-101'")).rows[0].stock_quantity), 12.75);
@@ -125,15 +132,3 @@ test('XSS, güvenli görsel URL, Türkçe slug ve LIKE kaçışları', () => {
   assert.ok(productMedia({ name:'<script>', is_sample:true, sample_image_index:0, image_url:'' }).includes('&lt;script&gt;'));
 });
 
-test('Önizleme örnekleri silinir, yeniden okunduğunda gizli kalır ve geri yüklenir', async () => {
-  const entries = new Map();
-  globalThis.localStorage = { getItem: key => entries.get(key) ?? null,
-    setItem: (key, value) => entries.set(key, value), removeItem: key => entries.delete(key) };
-  try {
-    const demo = await import('../js/demo.js');
-    assert.equal(demo.visibleProducts().length, 9);
-    demo.deleteSample('demo-101'); assert.equal(demo.visibleProducts().length, 8);
-    assert.ok(!demo.visibleProducts().some(p => p.id === 'demo-101'));
-    demo.restoreSamples(); assert.equal(demo.visibleProducts().length, 9);
-  } finally { delete globalThis.localStorage; }
-});
