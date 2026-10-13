@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
-import { escapeHTML, safeImage, slugify, searchPattern } from '../js/utils.js';
+import { escapeHTML, safeImage, slugify, searchPattern, stockLabel, productMedia } from '../js/utils.js';
 
 test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş admin', async () => {
   const db = new PGlite();
@@ -30,8 +30,8 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
   await db.query('insert into public.admin_users(user_id) values ($1)', [admin]);
   await db.query("insert into public.categories(id,name,slug) values ($1,'Oturma','oturma')", [category]);
   await db.query(`insert into public.products(name,category_id,dimensions,is_active) values
-    ('Aktif',$1,'{"width":100,"depth":80,"height":75}',true),
-    ('Pasif',$1,'{"width":100,"depth":80,"height":75}',false)`, [category]);
+    ('Aktif',$1,'{"width_cm":100,"thickness_mm":80,"roll_length_m":75}',true),
+    ('Pasif',$1,'{"width_cm":100,"thickness_mm":80,"roll_length_m":75}',false)`, [category]);
   async function as(role, id, fn) {
     await db.exec('begin');
     try {
@@ -56,7 +56,7 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
   });
   await as('authenticated', user, async () => {
     await assert.rejects(db.query(`insert into public.products(name,category_id,dimensions)
-      values ('Hack',$1,'{"width":40,"depth":40,"height":50}')`, [category]));
+      values ('Hack',$1,'{"width_cm":40,"thickness_mm":40,"roll_length_m":50}')`, [category]));
   });
   await as('authenticated', user, async () => {
     await assert.rejects(db.query('insert into public.admin_users(user_id) values ($1)', [user]));
@@ -69,7 +69,7 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
     assert.equal((await db.query("update public.products set material='Meşe' returning id")).rows.length, 2);
     await db.query("insert into public.categories(name,slug) values ('Masa','masa')");
     await db.query(`insert into public.products(name,category_id,dimensions)
-      values ('Yeni',$1,'{"width":40,"depth":40,"height":50}')`, [category]);
+      values ('Yeni',$1,'{"width_cm":40,"thickness_mm":40,"roll_length_m":50}')`, [category]);
     assert.equal((await db.query("delete from public.products where name='Yeni' returning id")).rows.length, 1);
     await db.query("insert into storage.objects(bucket_id,name) values ('product-images','admin.jpg')");
     assert.equal((await db.query('delete from storage.objects returning id')).rows.length, 1);
@@ -79,7 +79,7 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
   });
   await as('authenticated', admin, async () => {
     await assert.rejects(db.query(`insert into public.products(name,category_id,dimensions)
-      values ('Geçersiz',$1,'{"width":10,"depth":10}')`, [category]));
+      values ('Geçersiz',$1,'{"width_cm":10,"thickness_mm":10}')`, [category]));
   });
   await as('authenticated', admin, async () => {
     await assert.rejects(db.query('delete from public.categories where id=$1', [category]));
@@ -89,6 +89,29 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
     assert.equal((await db.query('select * from public.products')).rows.length, 1);
     assert.equal((await db.query("update public.products set name='Revoked' returning id")).rows.length, 0);
   });
+  await db.query('insert into public.admin_users(user_id) values ($1)', [admin]);
+  const samples = await readFile(new URL('../supabase/sample-data.sql', import.meta.url), 'utf8');
+  await db.exec(samples); await db.exec(samples);
+  assert.equal((await db.query('select * from public.products where is_sample')).rows.length, 9);
+  await as('authenticated', admin, async () => {
+    await db.query("update public.products set stock_quantity=12.75 where product_code='ORNEK-SYD-101'");
+    assert.equal(Number((await db.query("select stock_quantity from public.products where product_code='ORNEK-SYD-101'")).rows[0].stock_quantity), 12.75);
+  });
+  // as() izolasyon için rollback yapar; seed tekrarını kalıcı stok değişikliğiyle sınarız.
+  await db.query("update public.products set stock_quantity=12.75 where product_code='ORNEK-SYD-101'");
+  await db.exec(samples);
+  assert.equal(Number((await db.query("select stock_quantity from public.products where product_code='ORNEK-SYD-101'")).rows[0].stock_quantity), 12.75);
+  await as('authenticated', admin, async () => {
+    assert.equal((await db.query('delete from public.products where is_sample returning id')).rows.length, 9);
+  });
+  await db.query('delete from public.products where is_sample');
+  await as('authenticated', admin, async () => {
+    await assert.rejects(db.query("update public.products set stock_quantity=-1"));
+  });
+  await as('authenticated', admin, async () => {
+    await assert.rejects(db.query("update public.products set stock_quantity='NaN'::numeric"));
+  });
+  assert.equal((await db.query('select * from public.products')).rows.length, 2);
   await db.close();
 });
 
@@ -98,4 +121,19 @@ test('XSS, güvenli görsel URL, Türkçe slug ve LIKE kaçışları', () => {
   assert.equal(safeImage('https://example.com/a.jpg'), 'https://example.com/a.jpg');
   assert.equal(slugify('Çalışma & Ölçü Şöleni'), 'calisma-olcu-soleni');
   assert.equal(searchPattern('100%_'), '%100\\%\\_%');
+  assert.equal(stockLabel({stock_quantity:18.5,stock_unit:'metre'}), '18,5 metre');
+  assert.ok(productMedia({ name:'<script>', is_sample:true, sample_image_index:0, image_url:'' }).includes('&lt;script&gt;'));
+});
+
+test('Önizleme örnekleri silinir, yeniden okunduğunda gizli kalır ve geri yüklenir', async () => {
+  const entries = new Map();
+  globalThis.localStorage = { getItem: key => entries.get(key) ?? null,
+    setItem: (key, value) => entries.set(key, value), removeItem: key => entries.delete(key) };
+  try {
+    const demo = await import('../js/demo.js');
+    assert.equal(demo.visibleProducts().length, 9);
+    demo.deleteSample('demo-101'); assert.equal(demo.visibleProducts().length, 8);
+    assert.ok(!demo.visibleProducts().some(p => p.id === 'demo-101'));
+    demo.restoreSamples(); assert.equal(demo.visibleProducts().length, 9);
+  } finally { delete globalThis.localStorage; }
 });

@@ -1,5 +1,5 @@
 import { supabase, configured, applyCompany } from './supabaseClient.js';
-import { $, escapeHTML as esc, slugify, searchPattern, debounce, wireDialog } from './utils.js';
+import { $, escapeHTML as esc, slugify, searchPattern, stockLabel, debounce, wireDialog } from './utils.js';
 applyCompany();
 const form = $('#product-form'), catForm = $('#category-form'), catDialog = $('#category-dialog');
 wireDialog(catDialog);
@@ -9,7 +9,7 @@ let authorized = false, rows = [], categories = [], editing = null, catEditing =
 let page = 0, search = '', total = 0, listVersion = 0, authVersion = 0, operation = false, dataReady = false;
 function message(selector, text = '') { const el = $(selector); el.textContent = text; el.hidden = !text; }
 function fail(error) {
-  if (error?.code === '23505') return 'Bu slug zaten kullanılıyor. Farklı bir slug girin.';
+  if (error?.code === '23505') return 'Ürün kodu veya kategori slug değeri zaten kullanılıyor. Farklı bir değer girin.';
   if (error?.code === '23503') return 'Bu kategori ürünlerde kullanılıyor. Önce ürünleri başka kategoriye taşıyın.';
   if (error?.code === '42501') return 'İşlem yetkisi yok. Yönetici atamasını kontrol edin.';
   return error?.message || 'İşlem tamamlanamadı. Tekrar deneyin.';
@@ -77,8 +77,8 @@ async function loadRows() {
     if (request !== listVersion || !authorized) return;
     if (!data.length && page > 0) { --page; return loadRows(); }
     rows = data; total = count || 0;
-    $('#product-rows').innerHTML = rows.length ? rows.map(p => `<tr><td><span class="row-name">${esc(p.name)}</span><span class="row-category">${esc(p.categories?.name)} · ${esc(p.material)}</span></td><td><button class="badge" data-toggle="${esc(p.id)}" aria-label="${esc(p.name)} durumunu değiştir" aria-pressed="${p.is_active}">${p.is_active ? '● Aktif' : '○ Pasif'}</button></td><td><div class="row-actions"><button class="text-action" data-edit="${esc(p.id)}">Düzenle</button><button class="text-action danger" data-delete="${esc(p.id)}">Sil</button></div></td></tr>`).join('')
-      : '<tr><td colspan="3" class="muted py-10 text-center">Henüz ürün yok veya arama sonucu bulunamadı.</td></tr>';
+    $('#product-rows').innerHTML = rows.length ? rows.map(p => `<tr><td><span class="row-name">${esc(p.name)}</span><span class="row-category">${esc(p.product_code)} · ${esc(p.color)}${p.is_sample ? ' · Örnek ürün' : ''}</span></td><td><strong>${esc(stockLabel(p))}</strong></td><td><button class="badge" data-toggle="${esc(p.id)}" aria-label="${esc(p.name)} durumunu değiştir" aria-pressed="${p.is_active}">${p.is_active ? '● Aktif' : '○ Pasif'}</button></td><td><div class="row-actions"><button class="text-action" data-edit="${esc(p.id)}">Düzenle</button><button class="text-action danger" data-delete="${esc(p.id)}">Sil</button></div></td></tr>`).join('')
+      : '<tr><td colspan="4" class="muted py-10 text-center">Henüz ürün yok veya arama sonucu bulunamadı.</td></tr>';
     $('#page-info').textContent = `${count || 0} ürün · Sayfa ${page + 1}`;
     $('#previous').disabled = page === 0; $('#next').disabled = (page + 1) * pageSize >= (count || 0);
   } finally { if (request === listVersion) $('#product-rows').setAttribute('aria-busy', 'false'); }
@@ -104,8 +104,10 @@ form.addEventListener('submit', e => {
   // Disabled inputların değerleri de .elements üzerinden okunabilir.
   runOperation(async () => {
     const id = editing || crypto.randomUUID();
-    const dimensions = Object.fromEntries(['width', 'depth', 'height'].map(k => [k, Number(field(k).value)]));
+    const dimensions = Object.fromEntries(['width_cm', 'thickness_mm', 'roll_length_m'].map(k => [k, Number(field(k).value)]));
     if (Object.values(dimensions).some(n => !Number.isFinite(n) || n <= 0)) throw new Error('Ölçüler pozitif sayı olmalıdır.');
+    const stock_quantity = Number(field('stock_quantity').value);
+    if (!Number.isFinite(stock_quantity) || stock_quantity < 0) throw new Error('Stok miktarı sıfır veya pozitif sayı olmalıdır.');
     let image_url = field('image_url').value.trim(), uploadedPath;
     if (image_url && new URL(image_url).protocol !== 'https:') throw new Error('Görsel URL HTTPS olmalıdır.');
     const file = field('image_file').files[0];
@@ -119,6 +121,8 @@ form.addEventListener('submit', e => {
       image_url = supabase.storage.from('product-images').getPublicUrl(uploadedPath).data.publicUrl;
     }
     const payload = { name: field('name').value.trim(), category_id: field('category_id').value, dimensions,
+      product_code: field('product_code').value.trim(), color: field('color').value.trim(),
+      stock_quantity, stock_unit: field('stock_unit').value,
       material: field('material').value.trim(), color_options: field('colors').value.split(',').map(c => c.trim()).filter(Boolean),
       image_url, description: field('description').value.trim(), is_active: field('is_active').checked };
     const mutation = editing ? supabase.from('products').update(payload).eq('id', id) : supabase.from('products').insert({ id, ...payload });
@@ -139,8 +143,9 @@ $('#product-rows').addEventListener('click', e => {
   const p = rows.find(p => p.id === id); if (!p) return;
   if (button.dataset.edit) {
     resetForm(); editing = p.id;
-    for (const k of ['name', 'category_id', 'material', 'image_url', 'description']) field(k).value = p[k] || '';
-    for (const k of ['width', 'depth', 'height']) field(k).value = p.dimensions[k];
+    for (const k of ['name', 'product_code', 'color', 'category_id', 'material', 'image_url', 'description', 'stock_unit']) field(k).value = p[k] || '';
+    field('stock_quantity').value = p.stock_quantity;
+    for (const k of ['width_cm', 'thickness_mm', 'roll_length_m']) field(k).value = p.dimensions[k];
     field('colors').value = p.color_options.join(', '); field('is_active').checked = p.is_active;
     $('#form-title').textContent = 'Ürünü düzenle'; $('#save-product').textContent = 'Değişiklikleri kaydet';
     form.scrollIntoView({ behavior: 'smooth' }); field('name').focus(); return;

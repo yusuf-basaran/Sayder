@@ -14,29 +14,35 @@ create table if not exists public.categories (
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
   name text not null check (length(trim(name)) between 1 and 200),
+  product_code text not null unique default gen_random_uuid()::text check (length(trim(product_code)) between 1 and 60),
   category_id uuid not null references public.categories(id) on delete restrict,
   dimensions jsonb not null,
   material text not null default '' check (length(material) <= 500),
+  color text not null default '' check (length(color) <= 100),
+  stock_quantity numeric(12,2) not null default 0 check (stock_quantity >= 0 and stock_quantity <> 'NaN'::numeric),
+  stock_unit text not null default 'metre' check (stock_unit in ('metre', 'rulo', 'adet')),
+  is_sample boolean not null default false,
+  sample_image_index smallint check (sample_image_index between 0 and 5),
   color_options text[] not null default '{}',
   image_url text not null default '' check (image_url = '' or image_url ~ '^https://'),
   description text not null default '' check (length(description) <= 10000),
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   search_text text generated always as (
-    name || ' ' || material || ' ' ||
-    coalesce(dimensions->>'width', '') || 'x' ||
-    coalesce(dimensions->>'depth', '') || 'x' ||
-    coalesce(dimensions->>'height', '')
+    name || ' ' || product_code || ' ' || color || ' ' || material || ' ' ||
+    coalesce(dimensions->>'width_cm', '') || ' cm ' ||
+    coalesce(dimensions->>'thickness_mm', '') || ' mm ' ||
+    coalesce(dimensions->>'roll_length_m', '') || ' m'
   ) stored,
   constraint valid_dimensions check (
     case when jsonb_typeof(dimensions) = 'object'
-      and jsonb_typeof(dimensions->'width') = 'number'
-      and jsonb_typeof(dimensions->'depth') = 'number'
-      and jsonb_typeof(dimensions->'height') = 'number'
-      and dimensions ?& array['width', 'depth', 'height']
-    then (dimensions->>'width')::numeric > 0
-      and (dimensions->>'depth')::numeric > 0
-      and (dimensions->>'height')::numeric > 0
+      and jsonb_typeof(dimensions->'width_cm') = 'number'
+      and jsonb_typeof(dimensions->'thickness_mm') = 'number'
+      and jsonb_typeof(dimensions->'roll_length_m') = 'number'
+      and dimensions ?& array['width_cm', 'thickness_mm', 'roll_length_m']
+    then (dimensions->>'width_cm')::numeric > 0
+      and (dimensions->>'thickness_mm')::numeric > 0
+      and (dimensions->>'roll_length_m')::numeric > 0
     else false end
   )
 );
