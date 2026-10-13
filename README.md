@@ -6,6 +6,22 @@ Firma bilgileri kullanıcı tarafından paylaşılan Yandex/Facebook sayfaların
 Ürün görselleri, ürün kodları, ölçüler ve stok miktarları örnektir; gerçek kayıtlar panelden girilir.
 GitHub hedefi: https://github.com/yusuf-basaran/Sayder
 
+## SAYDER projesi için hazır kurulum
+
+Supabase proje ref'i: `hhfnxebtbpsttdsnplgd`.
+API URL: `https://hhfnxebtbpsttdsnplgd.supabase.co`.
+Yönetici hesabı: `sayder@sunideri.com` (Authentication > Users'ta oluşturuldu).
+
+Bu proje için `supabase/sayder-kurulum.sql` dosyası setup.sql, sample-data.sql ve
+bu e-postayı admin olarak atayan SQL'i birleştirir. SQL Editor > New query'de
+**dosyanın tamamını** çalıştırın. Sonuçta admin e-postasının göründüğü bir satır
+çıkmalıdır. Ayrı scriptleri yeniden çalıştırmanız gerekmez.
+
+Anahtar yerel `.env.local` dosyasına kaydedilir; GitHub'a gönderilmez.
+SQL kurulumu doğrulanana kadar yerel önizleme örnek modunda tutulur.
+Sonrasında `VITE_DEMO_MODE=false` kullanılır ve katalog Supabase'den okunur.
+Vercel'de aynı URL ve public key'i Environment Variables'a ekleyin, Redeploy yapın.
+
 ## 1. Önce SQL
 
 Supabase projenizde SQL Editor'ü açın. `supabase/setup.sql` dosyasının **tamamını**
@@ -225,6 +241,7 @@ setup.sql boş katalog kurar, örnekler ayrı sample-data.sql içindedir.
 ├── public/samples/leather-atlas.png
 ├── supabase/setup.sql
 ├── supabase/sample-data.sql
+├── supabase/sayder-kurulum.sql
 ├── tests/security.test.js
 ├── vite.config.js
 ├── tailwind.config.js

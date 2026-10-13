@@ -119,6 +119,13 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
     await assert.rejects(db.query("update public.products set stock_quantity='NaN'::numeric"));
   });
   assert.equal((await db.query('select * from public.products')).rows.length, 2);
+  // Kullanıcının SQL Editor'de çalıştıracağı birleşik kurulum: mevcut Auth hesabı.
+  await db.query('delete from public.admin_users where user_id=$1', [admin]);
+  await db.query('update auth.users set email=$1 where id=$2', ['sayder@sunideri.com', admin]);
+  const connectedSetup = await readFile(new URL('../supabase/sayder-kurulum.sql', import.meta.url), 'utf8');
+  await db.exec(connectedSetup);
+  assert.equal((await db.query('select * from public.admin_users where user_id=$1',[admin])).rows.length, 1);
+  assert.equal((await db.query('select * from public.products where is_sample')).rows.length, 9);
   await db.close();
 });
 
