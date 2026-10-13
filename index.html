@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Yaşam alanınız için özenle seçilmiş mobilyalar. Ölçüleri ve materyalleri inceleyin, ürünler için bilgi alın.">
+  <title>Atölye — Ürün kataloğu</title>
+  <link rel="stylesheet" href="/css/style.css"><script type="module" src="/js/catalog.js"></script>
+</head>
+<body>
+  <header class="site-header wrap flex items-center justify-between gap-4">
+    <a href="/" class="brand" data-company>Atölye Mobilya</a>
+    <nav class="flex items-center gap-6" aria-label="Ana menü"><a href="#collection">Koleksiyon</a><a href="#contact" class="hidden sm:block">İletişim</a><a href="/admin.html" class="text-sm muted">Yönetim ↗</a></nav>
+  </header>
+  <main>
+    <section class="hero wrap">
+      <div class="hero-copy"><p class="eyebrow">DOĞAL MALZEME. ZAMANSIZ TASARIM.</p><h1>Yaşamınıza<br>yer açın.</h1><p class="hero-description">İyi tasarım, evde hissettirir. Mekânınıza uyum sağlayan, her detayı özenle düşünülmüş parçalarımızı keşfedin.</p><div class="flex flex-wrap gap-3 mt-8"><a href="#collection" class="button">Koleksiyonu keşfet <span>↗</span></a><a data-whatsapp class="button secondary">WhatsApp ile görüşün</a></div><p class="hero-note">Sizin alanınız. Sizin ölçüleriniz. Sizin hikâyeniz.</p></div>
+      <div class="hero-visual"><img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1400&q=85" alt="Doğal tonlarda döşenmiş, aydınlık bir yaşam alanı" fetchpriority="high"><div class="hero-caption"><span>Gündelik hayata<br>iyi gelen tasarımlar.</span><span class="hero-mark">a.</span></div></div>
+    </section>
+    <section id="collection" class="collection wrap">
+      <div class="flex justify-between items-end gap-4 mb-7"><div><p class="eyebrow">KOLEKSİYONUMUZ</p><h2>Birlikte güzel.</h2></div><p class="muted text-sm hidden sm:block">Her parça, yeni bir başlangıç.</p></div>
+      <div class="filter-bar"><div id="categories" class="category-tabs" role="group" aria-label="Kategori filtresi"></div><label class="search-box"><span aria-hidden="true">⌕</span><input id="search" type="search" maxlength="100" placeholder="Ürün, materyal veya ölçü ara" aria-label="Ürün, materyal veya ölçü ara"></label></div>
+      <div class="flex justify-between items-center py-5"><p id="result-count" class="muted text-sm" aria-live="polite">Katalog yükleniyor…</p><button id="retry" class="text-sm underline" hidden>Tekrar dene</button></div>
+      <p id="notice" class="notice" role="status" hidden></p>
+      <div id="products" class="product-grid" aria-busy="true"></div>
+      <div class="text-center mt-10"><button id="load-more" class="button secondary" hidden>Daha fazla ürün</button></div>
+    </section>
+    <section class="contact-strip wrap"><p class="eyebrow">BİRLİKTE DÜŞÜNELİM</p><div class="flex flex-wrap justify-between items-center gap-6"><h2>Mekânınıza uygun<br>parçayı bulalım.</h2><a data-whatsapp class="button light">Bize yazın ↗</a></div></section>
+  </main>
+  <footer id="contact" class="wrap footer"><div><a href="/" class="brand" data-company>Atölye Mobilya</a><p class="muted mt-3">Uzun yıllar, güzel anılar.</p></div><div><p class="eyebrow">İLETİŞİM</p><a data-email>info@example.com</a><p data-address class="muted mt-2"></p></div><div><p class="eyebrow">ÇALIŞMA SAATLERİ</p><p data-hours></p><p class="muted text-sm mt-3">© <span id="year"></span> <span data-company></span></p></div></footer>
+  <dialog id="product-dialog" aria-labelledby="detail-title"><div class="dialog-shell"><button class="dialog-close" data-close aria-label="Detayı kapat">×</button><div id="detail"></div></div></dialog>
+</body>
+</html>
