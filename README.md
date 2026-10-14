@@ -19,12 +19,10 @@ yönetim paneli HTML ve HTTP header üzerinden noindex olarak korunur.
 Google Search Console'da alan adını doğruladıktan sonra `sitemap.xml` gönderilebilir.
 Firma adresi veya iletişim bilgileri değişirse index.html içindeki JSON-LD de güncellenmelidir.
 
-Logo amblemi, Yandex firma kaydındaki Ocak 2025 tarihli tabela fotoğrafının
-mavi, kırmızı ve altın renkli şekilleri esas alınarak SVG olarak yeniden çizilmiştir;
-orijinal kurumsal logo dosyası değildir. Referans:
-https://yandex.com.tr/maps/org/sayder_suni_deri/242969608386/gallery/
-`public/logo.svg` sitede, `favicon.svg` tarayıcıda, PNG sürümleri mobil ikonlarda
-ve paylaşım görselinde kullanılır. `logo-512.png` işletme JSON-LD logosudur.
+Kullanıcının sağladığı kurumsal PNG dosyası `public/sayder-original.png` içinde
+korunur. Sitede `sayder-logo.webp` ile tam logo kullanılır. Soldaki renkli amblem
+ikonlar için ayrılmıştır; `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png`
+ve `logo-512.png` bu amblemi kullanır. Paylaşım kartı da tam kurumsal logoyu içerir.
 
 ## Veritabanı ve yönetici kurulumu
 
