@@ -17,11 +17,17 @@ bu e-postayı admin olarak atayan SQL'i birleştirir. SQL Editor > New query'de
 **dosyanın tamamını** çalıştırın. Sonuçta admin e-postasının göründüğü bir satır
 çıkmalıdır. Ayrı scriptleri yeniden çalıştırmanız gerekmez.
 
-Anahtar yerel `.env.local` dosyasına kaydedilir; GitHub'a gönderilmez.
+Yerel `.env.local` dosyası GitHub'a gönderilmez.
+Vercel ortam değişkenleri girilmemişse uygulama `js/publicConfig.js` dosyasındaki
+SAYDER proje URL'sini ve anon/public anahtarı kullanır. Bu dosya kaynak deposundadır;
+tarayıcıya zaten gönderilen public bağlantı değerlerini içerir. service_role,
+secret key veya şifre içermez. Veri değiştirme yetkisi SQL RLS ile korunur.
 SQL kurulumu 14 Ekim 2026 tarihinde public REST API üzerinden doğrulandı.
 Yerel `.env.local` içinde `VITE_DEMO_MODE=false` kullanılır; katalog Supabase'den okunur.
 9 örnek ürün veritabanında yer alır; örnekler yetkili admin panelinden silinebilir.
-Vercel'de aynı URL ve public key'i Environment Variables'a ekleyin, Redeploy yapın.
+Vercel'de bağlantı için ek environment variable zorunlu değildir. Başka bir projeyi
+kullanacaksanız VITE_SUPABASE_URL ve VITE_SUPABASE_ANON_KEY ile varsayılanı geçersiz
+kılın ve Redeploy yapın. Key rotasyonunda publicConfig.js veya env değerlerini güncelleyin.
 
 ## 1. Önce SQL
 
@@ -200,7 +206,8 @@ Framework Vite, Install Command `pnpm install --frozen-lockfile`, Build Command
 `pnpm build`, Output Directory `dist`. `vercel.json` bu ayarları içerir.
 Node.js sürümünü 24.x seçin.
 
-Environment Variables'a aşağıdakileri ekleyin (Production; gerekiyorsa Preview ve Development):
+Environment Variables ile aşağıdaki varsayılanları değiştirebilirsiniz (Production;
+gerekiyorsa Preview ve Development). SAYDER bağlantısı için publicConfig.js yeterlidir:
 
 | Değişken | Değer |
 | --- | --- |
@@ -234,6 +241,7 @@ setup.sql boş katalog kurar, örnekler ayrı sample-data.sql içindedir.
 ├── css/style.css
 ├── js/
 │   ├── supabaseClient.js
+│   ├── publicConfig.js
 │   ├── catalog.js
 │   ├── admin.js
 │   ├── utils.js

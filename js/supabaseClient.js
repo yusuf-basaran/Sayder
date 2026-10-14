@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
+import { publicSupabaseConfig } from './publicConfig.js';
 const env = import.meta.env;
 export const demoMode = env.VITE_DEMO_MODE === 'true';
-const url = env.VITE_SUPABASE_URL || '';
-const key = env.VITE_SUPABASE_ANON_KEY || '';
+const url = env.VITE_SUPABASE_URL || publicSupabaseConfig.url;
+const key = env.VITE_SUPABASE_ANON_KEY || publicSupabaseConfig.key;
 export const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url)
   && key.length > 20 && !key.startsWith('YOUR_');
 // Anon/publishable key public'tir. Yetkilendirme SQL RLS ile yapılır.
