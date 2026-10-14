@@ -3,11 +3,21 @@
 Ürün ve stok kataloğu: HTML5, Vanilla JavaScript ES Modules, derlenen Tailwind CSS,
 Vite, Supabase JS v2, PostgreSQL/RLS/Auth/Storage ve Vercel.
 
-- Katalog: https://sayder.vercel.app/
-- Yönetim: https://sayder.vercel.app/admin.html
+- Katalog: https://www.sayder.tech/
+- Yönetim: https://www.sayder.tech/admin.html
 - GitHub: https://github.com/yusuf-basaran/Sayder
 - Supabase proje ref'i: `hhfnxebtbpsttdsnplgd`
 - Yönetici e-postası: `sayder@sunideri.com`
+
+## Arama motoru ve paylaşım bilgileri
+
+Ana adres `https://www.sayder.tech/` olarak ayarlanmıştır; kök alan adı Vercel'de
+bu adrese yönlendirilir. Başlık, açıklama, canonical, Open Graph, Twitter Card,
+kurumsal JSON-LD, favicon ve sosyal paylaşım görseli HTML içinde tanımlıdır.
+`public/robots.txt` ve `public/sitemap.xml` arama motorlarını ana kataloğa yönlendirir;
+yönetim paneli HTML ve HTTP header üzerinden noindex olarak korunur.
+Google Search Console'da alan adını doğruladıktan sonra `sitemap.xml` gönderilebilir.
+Firma adresi veya iletişim bilgileri değişirse index.html içindeki JSON-LD de güncellenmelidir.
 
 ## Veritabanı ve yönetici kurulumu
 
