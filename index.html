@@ -70,7 +70,7 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/identity.css"><script type="module" src="/js/catalog.js"></script>
+  <link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/identity.css"><link rel="stylesheet" href="/css/skeleton.css"><script type="module" src="/js/catalog.js"></script>
 </head>
 <body>
   <header class="site-header"><div class="wrap header-inner">
@@ -81,10 +81,52 @@
     <section class="catalog-intro"><div><p class="eyebrow">SAYDER / ÜRÜNLERİMİZ</p><h1>Ürün kataloğu</h1><p>Aradığınız dokuyu bulun. Renk, ölçü ve stok bilgilerini inceleyin.</p></div><a data-whatsapp class="button secondary">WhatsApp ile iletişim ↗</a></section>
     <div class="search-region"><label class="catalog-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" maxlength="100" placeholder="Ürün adı, kodu, renk veya ölçü arayın…" aria-label="Ürün adı, kodu, renk veya ölçü ara"><kbd class="hidden sm:inline">ARA</kbd></label></div>
     <div class="catalog-layout">
-      <aside class="catalog-sidebar"><p class="eyebrow">ÜRÜN GRUPLARI</p><div id="categories" class="category-tabs" role="group" aria-label="Kategori filtresi"></div><div class="stock-filter"><label><input id="in-stock" type="checkbox"> Sadece stokta olanlar</label></div><div class="sidebar-contact"><p>Ürün hakkında<br>bilgi mi gerekiyor?</p><a data-phone href="tel:+905303606363">Bizi arayın ↗</a></div></aside>
+      <aside class="catalog-sidebar"><p class="eyebrow">ÜRÜN GRUPLARI</p><div id="categories" class="category-tabs" role="group" aria-label="Kategori filtresi" aria-busy="true"><div class="skeleton-category skeleton-block" data-skeleton aria-hidden="true"></div><div class="skeleton-category skeleton-block" data-skeleton aria-hidden="true"></div><div class="skeleton-category skeleton-block" data-skeleton aria-hidden="true"></div><div class="skeleton-category skeleton-block" data-skeleton aria-hidden="true"></div></div><div class="stock-filter"><label><input id="in-stock" type="checkbox"> Sadece stokta olanlar</label></div><div class="sidebar-contact"><p>Ürün hakkında<br>bilgi mi gerekiyor?</p><a data-phone href="tel:+905303606363">Bizi arayın ↗</a></div></aside>
       <section id="collection" aria-label="Ürünler"><div class="results-toolbar"><p id="result-count" aria-live="polite">Ürünler yükleniyor…</p><label class="sort-label">Sıralama<select id="sort" aria-label="Ürün sıralaması"><option value="newest">En yeni</option><option value="name">Ürün adı A–Z</option></select></label></div>
         <p id="notice" class="notice" role="status" hidden></p><button id="retry" class="text-action mb-5" hidden>Tekrar dene</button>
-        <div id="products" class="product-grid" aria-busy="true"></div><div class="text-center mt-8"><button id="load-more" class="button secondary" hidden>Daha fazla ürün</button></div>
+        <div id="products" class="product-grid" aria-busy="true"><article class="product-card skeleton-card" data-skeleton aria-hidden="true">
+    <div class="product-image-button skeleton-block"></div>
+    <div class="card-body"><div class="skeleton-block skeleton-line short"></div>
+      <div class="skeleton-block skeleton-line heading"></div><div class="skeleton-block skeleton-line medium"></div>
+      <div class="card-specs skeleton-specs"><span class="skeleton-block"></span><span class="skeleton-block"></span><span class="skeleton-block"></span></div>
+      <div class="card-stock"><span class="skeleton-block skeleton-line medium"></span><span class="skeleton-block skeleton-line short"></span></div>
+    </div><div class="skeleton-card-footer"><span class="skeleton-block skeleton-line medium"></span></div>
+  </article><article class="product-card skeleton-card" data-skeleton aria-hidden="true">
+    <div class="product-image-button skeleton-block"></div>
+    <div class="card-body"><div class="skeleton-block skeleton-line short"></div>
+      <div class="skeleton-block skeleton-line heading"></div><div class="skeleton-block skeleton-line medium"></div>
+      <div class="card-specs skeleton-specs"><span class="skeleton-block"></span><span class="skeleton-block"></span><span class="skeleton-block"></span></div>
+      <div class="card-stock"><span class="skeleton-block skeleton-line medium"></span><span class="skeleton-block skeleton-line short"></span></div>
+    </div><div class="skeleton-card-footer"><span class="skeleton-block skeleton-line medium"></span></div>
+  </article><article class="product-card skeleton-card" data-skeleton aria-hidden="true">
+    <div class="product-image-button skeleton-block"></div>
+    <div class="card-body"><div class="skeleton-block skeleton-line short"></div>
+      <div class="skeleton-block skeleton-line heading"></div><div class="skeleton-block skeleton-line medium"></div>
+      <div class="card-specs skeleton-specs"><span class="skeleton-block"></span><span class="skeleton-block"></span><span class="skeleton-block"></span></div>
+      <div class="card-stock"><span class="skeleton-block skeleton-line medium"></span><span class="skeleton-block skeleton-line short"></span></div>
+    </div><div class="skeleton-card-footer"><span class="skeleton-block skeleton-line medium"></span></div>
+  </article><article class="product-card skeleton-card" data-skeleton aria-hidden="true">
+    <div class="product-image-button skeleton-block"></div>
+    <div class="card-body"><div class="skeleton-block skeleton-line short"></div>
+      <div class="skeleton-block skeleton-line heading"></div><div class="skeleton-block skeleton-line medium"></div>
+      <div class="card-specs skeleton-specs"><span class="skeleton-block"></span><span class="skeleton-block"></span><span class="skeleton-block"></span></div>
+      <div class="card-stock"><span class="skeleton-block skeleton-line medium"></span><span class="skeleton-block skeleton-line short"></span></div>
+    </div><div class="skeleton-card-footer"><span class="skeleton-block skeleton-line medium"></span></div>
+  </article><article class="product-card skeleton-card" data-skeleton aria-hidden="true">
+    <div class="product-image-button skeleton-block"></div>
+    <div class="card-body"><div class="skeleton-block skeleton-line short"></div>
+      <div class="skeleton-block skeleton-line heading"></div><div class="skeleton-block skeleton-line medium"></div>
+      <div class="card-specs skeleton-specs"><span class="skeleton-block"></span><span class="skeleton-block"></span><span class="skeleton-block"></span></div>
+      <div class="card-stock"><span class="skeleton-block skeleton-line medium"></span><span class="skeleton-block skeleton-line short"></span></div>
+    </div><div class="skeleton-card-footer"><span class="skeleton-block skeleton-line medium"></span></div>
+  </article><article class="product-card skeleton-card" data-skeleton aria-hidden="true">
+    <div class="product-image-button skeleton-block"></div>
+    <div class="card-body"><div class="skeleton-block skeleton-line short"></div>
+      <div class="skeleton-block skeleton-line heading"></div><div class="skeleton-block skeleton-line medium"></div>
+      <div class="card-specs skeleton-specs"><span class="skeleton-block"></span><span class="skeleton-block"></span><span class="skeleton-block"></span></div>
+      <div class="card-stock"><span class="skeleton-block skeleton-line medium"></span><span class="skeleton-block skeleton-line short"></span></div>
+    </div><div class="skeleton-card-footer"><span class="skeleton-block skeleton-line medium"></span></div>
+  </article></div><div class="text-center mt-8"><button id="load-more" class="button secondary" hidden>Daha fazla ürün</button></div>
       </section>
     </div>
   </main>

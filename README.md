@@ -58,6 +58,15 @@ Ek bölgesel dillerin metinleri geliştirme aşamasında makine çevirisiyle haz
 ticari terminoloji anadili konuşan bir kişi tarafından bu dosyalarda gözden geçirilebilir.
 Ziyaret sırasında harici çeviri servisi çağrılmaz ve ürün verileri çeviri servisine gönderilmez.
 
+## Yükleme görünümü
+
+İlk açılışta ve arama/filtre/sıralama sorgularında ürün kartı skeleton görünümü
+gösterilir. Daha fazla ürün yüklerken mevcut kartlar korunur. Kategoriler ilk
+sorguda kendi yükleme şablonunu gösterir. Başarı, boş sonuç ve hata durumlarında
+skeleton kaldırılır. Dekoratif parçalar ekran okuyucudan gizlenir; mevcut
+yükleme durum metni ve aria-busy kullanılır. Azaltılmış hareket tercihinde
+parlama animasyonu kapalıdır.
+
 ## Veritabanı ve yönetici kurulumu
 
 Yeni kurulumda Supabase SQL Editor'de `supabase/sayder-kurulum.sql` dosyasının

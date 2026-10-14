@@ -1,6 +1,7 @@
 import { supabase, configured, applyCompany, whatsappLink } from './supabaseClient.js';
 import { $, escapeHTML as esc, stockLabel, productMedia, searchPattern, wireDialog } from './utils.js';
 import { onLanguageChange } from './i18n.js';
+import { clearSkeletons, showProductSkeleton, showCategorySkeleton } from './skeleton.js';
 applyCompany(); $('#year').textContent = new Date().getFullYear();
 const grid = $('#products'), dialog = $('#product-dialog'); wireDialog(dialog);
 const pageSize = 12;
@@ -29,7 +30,8 @@ function wireImages() { document.querySelectorAll('#products img, #detail img').
 async function load(reset = false) {
   if (!reset && loading) return;
   controller?.abort(); controller = new AbortController(); const request = ++version;
-  if (reset) { offset = 0; products = []; grid.innerHTML = ''; }
+  if (reset) { offset = 0; products = []; $('#load-more').hidden = true; }
+  showProductSkeleton(grid,{append:!reset,count:reset ? 6 : 3});
   loading = true; grid.setAttribute('aria-busy', 'true'); $('#retry').hidden = true; $('#load-more').disabled = true;
   $('#result-count').textContent = 'Ürünler yükleniyor…';
   try {
@@ -51,7 +53,7 @@ async function load(reset = false) {
     notice('Ürünler yüklenemedi. Bağlantınızı ve Supabase kurulumunu kontrol edip tekrar deneyin.');
     $('#result-count').textContent = 'Bağlantı kurulamadı'; $('#retry').hidden = false;
   } finally {
-    if (request === version) { loading = false; grid.setAttribute('aria-busy', 'false'); $('#load-more').disabled = false; }
+    if (request === version) { clearSkeletons(grid); loading = false; grid.setAttribute('aria-busy', 'false'); $('#load-more').disabled = false; }
   }
 }
 function openDetail(p) {
@@ -76,11 +78,15 @@ $('#in-stock').addEventListener('change', () => { stockOnly = $('#in-stock').che
 $('#sort').addEventListener('change', () => { sort = $('#sort').value; load(true); });
 $('#load-more').addEventListener('click', () => load()); $('#retry').addEventListener('click', () => start());
 async function start() {
+  showProductSkeleton(grid);
+  grid.setAttribute('aria-busy','true');
+  if (!$('#categories').querySelector('[data-category]')) showCategorySkeleton($('#categories'));
   try {
     if (!configured) throw new Error('config');
     const result = await supabase.from('categories').select('id,name,slug').order('name');
     if (result.error) throw result.error;
     $('#categories').innerHTML = [{ id: '', name: 'Tüm ürünler' }, ...result.data].map(c => `<button class="category-tab" data-category="${esc(c.id)}" aria-pressed="${c.id === category}"><span>${esc(c.name)}</span><span class="tab-arrow" aria-hidden="true">→</span></button>`).join('');
+    $('#categories').setAttribute('aria-busy','false');
     await load(true);
     const id = new URLSearchParams(location.search).get('product') || (location.pathname.startsWith('/urun/') ? location.pathname.split('/')[2] : '');
     if (id) {
@@ -88,6 +94,7 @@ async function start() {
       if (p) openDetail(p); else notice('Bu ürün bulunamadı veya yayından kaldırıldı.');
     }
   } catch {
+    clearSkeletons(grid); clearSkeletons($('#categories')); $('#categories').setAttribute('aria-busy','false');
     notice(configured ? 'Kategoriler yüklenemedi. Tekrar deneyin.' : 'Katalog henüz bağlanmadı. Supabase ortam değişkenleri tanımlanmalıdır.');
     grid.setAttribute('aria-busy', 'false'); $('#result-count').textContent = 'Katalog kullanılamıyor'; $('#retry').hidden = false;
   }
