@@ -1,10 +1,12 @@
-import { supabase, configured, applyCompany, company, whatsappLink } from './supabaseClient.js';
+import { supabase, configured, applyCompany, whatsappLink } from './supabaseClient.js';
 import { $, escapeHTML as esc, stockLabel, productMedia, searchPattern, wireDialog } from './utils.js';
-applyCompany(); document.title = `${company.name} — Ürün kataloğu`; $('#year').textContent = new Date().getFullYear();
+import { onLanguageChange } from './i18n.js';
+applyCompany(); $('#year').textContent = new Date().getFullYear();
 const grid = $('#products'), dialog = $('#product-dialog'); wireDialog(dialog);
 const pageSize = 12;
 let category = '', term = '', offset = 0, total = 0, version = 0, stockOnly = false, sort = 'newest';
 let controller, products = [], loading = false, searchTimer;
+let detailedProduct = null;
 function notice(message = '') { $('#notice').textContent = message; $('#notice').hidden = !message; }
 function contact(product, className = 'card-link') {
   const href = whatsappLink(product);
@@ -53,6 +55,7 @@ async function load(reset = false) {
   }
 }
 function openDetail(p) {
+  detailedProduct = p;
   $('#detail').innerHTML = `<div class="detail-grid"><div class="detail-media">${productMedia(p)}</div><div class="detail-copy"><p class="eyebrow">${esc(p.categories?.name || 'SUNİ DERİ')}</p><h2 id="detail-title">${esc(p.name)}</h2><p class="detail-code">Ürün kodu: ${esc(p.product_code)}</p><div class="detail-stock"><span>${p.stock_quantity > 0 ? 'Kalan stok' : 'Stok tükendi'}</span><strong>${esc(stockLabel(p))}</strong></div><dl class="technical"><div><dt>Renk</dt><dd>${esc(p.color || p.color_options?.join(', '))}</dd></div><div><dt>En</dt><dd>${esc(p.dimensions.width_cm)} cm</dd></div><div><dt>Kalınlık</dt><dd>${esc(p.dimensions.thickness_mm)} mm</dd></div><div><dt>Rulo uzunluğu</dt><dd>${esc(p.dimensions.roll_length_m)} metre</dd></div><div><dt>Malzeme</dt><dd>${esc(p.material)}</dd></div></dl><p class="description mb-5">${esc(p.description)}</p>${contact(p, 'button')}</div></div>`;
   wireImages(); if (!dialog.open) dialog.showModal();
   const url = new URL(location.href); url.pathname = '/'; url.searchParams.set('product', p.id); history.replaceState(null, '', url);
@@ -89,4 +92,8 @@ async function start() {
     grid.setAttribute('aria-busy', 'false'); $('#result-count').textContent = 'Katalog kullanılamıyor'; $('#retry').hidden = false;
   }
 }
+onLanguageChange(() => {
+  if (!loading && grid.getAttribute('aria-busy') === 'false') renderCards();
+  if (dialog.open && detailedProduct) openDetail(detailedProduct);
+});
 start();

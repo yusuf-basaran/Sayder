@@ -1,5 +1,6 @@
 import { supabase, configured, applyCompany } from './supabaseClient.js';
 import { $, escapeHTML as esc, slugify, searchPattern, stockLabel, debounce, wireDialog } from './utils.js';
+import { t, onLanguageChange } from './i18n.js';
 applyCompany();
 const form = $('#product-form'), catForm = $('#category-form'), catDialog = $('#category-dialog');
 wireDialog(catDialog);
@@ -150,7 +151,7 @@ $('#product-rows').addEventListener('click', e => {
     $('#form-title').textContent = 'Ürünü düzenle'; $('#save-product').textContent = 'Değişiklikleri kaydet';
     form.scrollIntoView({ behavior: 'smooth' }); field('name').focus(); return;
   }
-  if (button.dataset.delete && !confirm(`“${p.name}” kalıcı olarak silinsin mi?`)) return;
+  if (button.dataset.delete && !confirm(t('“{name}” kalıcı olarak silinsin mi?',{name:p.name}))) return;
   runOperation(async () => {
     const query = button.dataset.delete ? supabase.from('products').delete().eq('id', id)
       : supabase.from('products').update({ is_active: !p.is_active }).eq('id', id);
@@ -179,12 +180,18 @@ $('#category-list').addEventListener('click', e => {
   const button = e.target.closest('button'); if (!button || operation) return;
   const c = categories.find(c => c.id === (button.dataset.catEdit || button.dataset.catDelete)); if (!c) return;
   if (button.dataset.catEdit) { catEditing = c.id; catForm.elements.name.value = c.name; catForm.elements.slug.value = c.slug; return; }
-  if (!confirm(`“${c.name}” kategorisi silinsin mi?`)) return;
+  if (!confirm(t('“{name}” kategorisi silinsin mi?',{name:c.name}))) return;
   runOperation(async () => {
     const result = await supabase.from('categories').delete().eq('id', c.id).select('id').single();
     if (result.error) throw result.error;
     await loadCategories(); resetCategory(); message('#category-message', 'Kategori silindi.');
   }, '#category-message');
+});
+onLanguageChange(() => {
+  document.querySelectorAll('#product-rows tr').forEach((row,index) => {
+    const cell = row.querySelector('td:nth-child(2) strong');
+    if (cell && rows[index]) cell.textContent = stockLabel(rows[index]);
+  });
 });
 if (!configured) {
   message('#auth-status', 'Önce VITE_SUPABASE_URL ve VITE_SUPABASE_ANON_KEY ortam değişkenlerini tanımlayın.');

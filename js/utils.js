@@ -1,3 +1,4 @@
+import { getLocale, stockUnit } from './i18n.js';
 export const $ = (selector) => document.querySelector(selector);
 export const escapeHTML = (value = '') => String(value).replace(/[&<>"']/g, c => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -9,7 +10,7 @@ export function safeImage(value) {
 export const sizeLabel = (d = {}) => `${d.width_cm ?? '—'} cm en · ${d.thickness_mm ?? '—'} mm · ${d.roll_length_m ?? '—'} m rulo`;
 export function stockLabel(product) {
   const amount = Number(product.stock_quantity || 0);
-  return `${new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 }).format(amount)} ${product.stock_unit || 'metre'}`;
+  return `${new Intl.NumberFormat(getLocale(), { maximumFractionDigits: 2 }).format(amount)} ${stockUnit(product.stock_unit || 'metre')}`;
 }
 export function productMedia(product) {
   return `<img src="${escapeHTML(safeImage(product.image_url))}" alt="${escapeHTML(product.name)}" loading="lazy" decoding="async">`;

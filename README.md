@@ -26,6 +26,38 @@ ve `logo-512.png` bu amblemi kullanır. Paylaşım kartı da tam kurumsal logoyu
 Logo ve ikon dosyalarının arka planı şeffaftır. Marka renkleri, tipografi ve
 bileşen kuralları `BRAND.md` içinde; uygulama stilleri `css/identity.css` içindedir.
 
+## Dil seçenekleri
+
+Katalog ve yönetim paneli 18 arayüz dili içerir. Türkçe, İngilizce, Arapça,
+Rusça, Almanca, Fransızca, İspanyolca, Bulgarca, Yunanca, Gürcüce, Ermenice,
+Azerbaycanca, Farsça, Romence, Ukraynaca, İbranice, Kürtçe Kurmancî ve Soranî.
+Seçim tarayıcıda hatırlanır; `?lang=bg` gibi bağlantılar da desteklenir.
+Arapça, Farsça, İbranice ve Soranî sağdan sola görünür. Sayfa yenilenmeden
+dil değişir, formlardaki değerler korunur. Stok sayıları ve WhatsApp mesajları
+seçili dile göre biçimlendirilir. Ürün adları, renkler ve açıklamalar yönetici
+tarafından yazıldıkları dilde kalır. Tanımlı standart kategori adları çevrilir.
+
+| Ülkeler | Dil seçenekleri |
+| --- | --- |
+| Bulgaristan | Bulgarca |
+| Yunanistan, Kıbrıs Cumhuriyeti | Yunanca |
+| Gürcistan | Gürcüce |
+| Ermenistan | Ermenice |
+| Azerbaycan | Azerbaycanca |
+| İran | Farsça |
+| Irak | Arapça, Kürtçe Kurmancî ve Soranî |
+| Suriye, Lübnan, Mısır, Libya | Arapça (Lübnan için Fransızca da mevcut) |
+| Romanya | Romence |
+| Ukrayna | Ukraynaca |
+| Rusya | Rusça |
+| Kuzey Kıbrıs Türk Cumhuriyeti | Türkçe |
+| İsrail | İbranice, Arapça |
+
+Çeviri sözlükleri `js/translations.js` ve `js/translations-extra.js` içindedir.
+Ek bölgesel dillerin metinleri geliştirme aşamasında makine çevirisiyle hazırlanmıştır;
+ticari terminoloji anadili konuşan bir kişi tarafından bu dosyalarda gözden geçirilebilir.
+Ziyaret sırasında harici çeviri servisi çağrılmaz ve ürün verileri çeviri servisine gönderilmez.
+
 ## Veritabanı ve yönetici kurulumu
 
 Yeni kurulumda Supabase SQL Editor'de `supabase/sayder-kurulum.sql` dosyasının

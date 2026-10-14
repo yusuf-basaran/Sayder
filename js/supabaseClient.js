@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { publicSupabaseConfig } from './publicConfig.js';
+import { initI18n, onLanguageChange, t, getLanguage } from './i18n.js';
 const env = import.meta.env;
 const url = env.VITE_SUPABASE_URL || publicSupabaseConfig.url;
 const key = env.VITE_SUPABASE_ANON_KEY || publicSupabaseConfig.key;
@@ -23,9 +24,12 @@ export const company = {
 };
 export function whatsappLink(product) {
   if (!/^\d{10,15}$/.test(company.whatsapp)) return null;
-  const url = product ? `${location.origin}/?product=${encodeURIComponent(product.id)}` : location.origin;
-  const message = product ? `Merhaba, ${product.product_code} ${product.name} (${product.color || ''}) hakkında fiyat ve stok bilgisi almak istiyorum. ${url}`
-    : `Merhaba, ürünleriniz hakkında bilgi almak istiyorum. ${url}`;
+  const link = new URL('/',location.origin);
+  if (product) link.searchParams.set('product',product.id);
+  link.searchParams.set('lang',getLanguage());
+  const url = link.href;
+  const message = product ? t('Merhaba, {code} {name} ({color}) hakkında fiyat ve stok bilgisi almak istiyorum. {url}',{code:product.product_code,name:product.name,color:product.color || '',url})
+    : t('Merhaba, ürünleriniz hakkında bilgi almak istiyorum. {url}',{url});
   return `https://wa.me/${company.whatsapp}?text=${encodeURIComponent(message)}`;
 }
 export function applyCompany() {
@@ -50,4 +54,8 @@ export function applyCompany() {
     if (href) { el.href = href; el.target = '_blank'; el.rel = 'noopener noreferrer'; }
     else { el.removeAttribute('href'); el.setAttribute('aria-disabled', 'true'); el.title = 'WhatsApp numarası henüz tanımlanmadı'; }
   });
+  initI18n();
 }
+onLanguageChange(() => document.querySelectorAll('[data-whatsapp]').forEach(el => {
+  const href = whatsappLink(); if (href) el.href = href;
+}));
