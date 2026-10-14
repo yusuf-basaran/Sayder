@@ -12,9 +12,6 @@ export function stockLabel(product) {
   return `${new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 }).format(amount)} ${product.stock_unit || 'metre'}`;
 }
 export function productMedia(product) {
-  const i = product.sample_image_index;
-  if (product.is_sample && Number.isInteger(i) && i >= 0 && i <= 5 && !product.image_url)
-    return `<div class="sample-swatch swatch-${i}" role="img" aria-label="${escapeHTML(product.name)} — örnek suni deri dokusu"></div>`;
   return `<img src="${escapeHTML(safeImage(product.image_url))}" alt="${escapeHTML(product.name)}" loading="lazy" decoding="async">`;
 }
 export function slugify(value) {

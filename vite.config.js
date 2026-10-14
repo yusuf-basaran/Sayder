@@ -9,8 +9,6 @@ export default defineConfig(({ mode }) => {
     if (key.startsWith('sb_secret_') || (role && role !== 'anon'))
       throw new Error('Tarayıcı yapılandırmasında yalnız public anon/publishable key kullanılabilir.');
   }
-  if (mode === 'production' && env.VITE_DEMO_MODE === 'true')
-    throw new Error('Production için VITE_DEMO_MODE=false kullanın. Önizleme: pnpm dev.');
   return {
   build: { rollupOptions: { input: {
     catalog: resolve(import.meta.dirname, 'index.html'),

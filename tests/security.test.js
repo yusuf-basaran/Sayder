@@ -90,28 +90,6 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
     assert.equal((await db.query("update public.products set name='Revoked' returning id")).rows.length, 0);
   });
   await db.query('insert into public.admin_users(user_id) values ($1)', [admin]);
-  const samples = await readFile(new URL('../supabase/sample-data.sql', import.meta.url), 'utf8');
-  await db.exec(samples); await db.exec(samples);
-  assert.equal((await db.query('select * from public.products where is_sample')).rows.length, 9);
-  await as('anon', null, async () => {
-    await assert.rejects(db.query('delete from public.products where is_sample'));
-  });
-  await as('authenticated', user, async () => {
-    assert.equal((await db.query('delete from public.products where is_sample returning id')).rows.length, 0);
-    assert.equal((await db.query('update public.products set stock_quantity=999 where is_sample returning id')).rows.length, 0);
-  });
-  await as('authenticated', admin, async () => {
-    await db.query("update public.products set stock_quantity=12.75 where product_code='ORNEK-SYD-101'");
-    assert.equal(Number((await db.query("select stock_quantity from public.products where product_code='ORNEK-SYD-101'")).rows[0].stock_quantity), 12.75);
-  });
-  // as() izolasyon için rollback yapar; seed tekrarını kalıcı stok değişikliğiyle sınarız.
-  await db.query("update public.products set stock_quantity=12.75 where product_code='ORNEK-SYD-101'");
-  await db.exec(samples);
-  assert.equal(Number((await db.query("select stock_quantity from public.products where product_code='ORNEK-SYD-101'")).rows[0].stock_quantity), 12.75);
-  await as('authenticated', admin, async () => {
-    assert.equal((await db.query('delete from public.products where is_sample returning id')).rows.length, 9);
-  });
-  await db.query('delete from public.products where is_sample');
   await as('authenticated', admin, async () => {
     await assert.rejects(db.query("update public.products set stock_quantity=-1"));
   });
@@ -125,7 +103,7 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
   const connectedSetup = await readFile(new URL('../supabase/sayder-kurulum.sql', import.meta.url), 'utf8');
   await db.exec(connectedSetup);
   assert.equal((await db.query('select * from public.admin_users where user_id=$1',[admin])).rows.length, 1);
-  assert.equal((await db.query('select * from public.products where is_sample')).rows.length, 9);
+  assert.equal((await db.query('select * from public.products')).rows.length, 2);
   await db.close();
 });
 
@@ -136,6 +114,6 @@ test('XSS, güvenli görsel URL, Türkçe slug ve LIKE kaçışları', () => {
   assert.equal(slugify('Çalışma & Ölçü Şöleni'), 'calisma-olcu-soleni');
   assert.equal(searchPattern('100%_'), '%100\\%\\_%');
   assert.equal(stockLabel({stock_quantity:18.5,stock_unit:'metre'}), '18,5 metre');
-  assert.ok(productMedia({ name:'<script>', is_sample:true, sample_image_index:0, image_url:'' }).includes('&lt;script&gt;'));
+  assert.ok(productMedia({ name:'<script>', image_url:'' }).includes('&lt;script&gt;'));
 });
 

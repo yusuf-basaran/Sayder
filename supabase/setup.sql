@@ -21,8 +21,6 @@ create table if not exists public.products (
   color text not null default '' check (length(color) <= 100),
   stock_quantity numeric(12,2) not null default 0 check (stock_quantity >= 0 and stock_quantity <> 'NaN'::numeric),
   stock_unit text not null default 'metre' check (stock_unit in ('metre', 'rulo', 'adet')),
-  is_sample boolean not null default false,
-  sample_image_index smallint check (sample_image_index between 0 and 5),
   color_options text[] not null default '{}',
   image_url text not null default '' check (image_url = '' or image_url ~ '^https://'),
   description text not null default '' check (length(description) <= 10000),

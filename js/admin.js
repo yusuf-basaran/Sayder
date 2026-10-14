@@ -77,7 +77,7 @@ async function loadRows() {
     if (request !== listVersion || !authorized) return;
     if (!data.length && page > 0) { --page; return loadRows(); }
     rows = data; total = count || 0;
-    $('#product-rows').innerHTML = rows.length ? rows.map(p => `<tr><td><span class="row-name">${esc(p.name)}</span><span class="row-category">${esc(p.product_code)} · ${esc(p.color)}${p.is_sample ? ' · Örnek ürün' : ''}</span></td><td><strong>${esc(stockLabel(p))}</strong></td><td><button class="badge" data-toggle="${esc(p.id)}" aria-label="${esc(p.name)} durumunu değiştir" aria-pressed="${p.is_active}">${p.is_active ? '● Aktif' : '○ Pasif'}</button></td><td><div class="row-actions"><button class="text-action" data-edit="${esc(p.id)}">Düzenle</button><button class="text-action danger" data-delete="${esc(p.id)}">Sil</button></div></td></tr>`).join('')
+    $('#product-rows').innerHTML = rows.length ? rows.map(p => `<tr><td><span class="row-name">${esc(p.name)}</span><span class="row-category">${esc(p.product_code)} · ${esc(p.color)}</span></td><td><strong>${esc(stockLabel(p))}</strong></td><td><button class="badge" data-toggle="${esc(p.id)}" aria-label="${esc(p.name)} durumunu değiştir" aria-pressed="${p.is_active}">${p.is_active ? '● Aktif' : '○ Pasif'}</button></td><td><div class="row-actions"><button class="text-action" data-edit="${esc(p.id)}">Düzenle</button><button class="text-action danger" data-delete="${esc(p.id)}">Sil</button></div></td></tr>`).join('')
       : '<tr><td colspan="4" class="muted py-10 text-center">Henüz ürün yok veya arama sonucu bulunamadı.</td></tr>';
     $('#page-info').textContent = `${count || 0} ürün · Sayfa ${page + 1}`;
     $('#previous').disabled = page === 0; $('#next').disabled = (page + 1) * pageSize >= (count || 0);
@@ -124,8 +124,7 @@ form.addEventListener('submit', e => {
       product_code: field('product_code').value.trim(), color: field('color').value.trim(),
       stock_quantity, stock_unit: field('stock_unit').value,
       material: field('material').value.trim(), color_options: field('colors').value.split(',').map(c => c.trim()).filter(Boolean),
-      image_url, description: field('description').value.trim(), is_active: field('is_active').checked,
-      is_sample: field('is_sample').checked };
+      image_url, description: field('description').value.trim(), is_active: field('is_active').checked };
     const mutation = editing ? supabase.from('products').update(payload).eq('id', id) : supabase.from('products').insert({ id, ...payload });
     const { data, error } = await mutation.select('id').single();
     if (error || !data) {
@@ -146,7 +145,6 @@ $('#product-rows').addEventListener('click', e => {
     resetForm(); editing = p.id;
     for (const k of ['name', 'product_code', 'color', 'category_id', 'material', 'image_url', 'description', 'stock_unit']) field(k).value = p[k] || '';
     field('stock_quantity').value = p.stock_quantity;
-    field('is_sample').checked = p.is_sample;
     for (const k of ['width_cm', 'thickness_mm', 'roll_length_m']) field(k).value = p.dimensions[k];
     field('colors').value = p.color_options.join(', '); field('is_active').checked = p.is_active;
     $('#form-title').textContent = 'Ürünü düzenle'; $('#save-product').textContent = 'Değişiklikleri kaydet';

@@ -1,280 +1,147 @@
-# SAYDER SUNİ DERİ · Ürün ve stok kataloğu
+# SAYDER SUNİ DERİ
 
-Vanilla JavaScript ES Modules + HTML5 + derlenen Tailwind CSS, Supabase JS v2,
-PostgreSQL/RLS/Auth/Storage ve Vercel. Vite yalnız geliştirme ve derleme aracıdır.
-Firma bilgileri kullanıcı tarafından paylaşılan Yandex/Facebook sayfalarından alınmıştır.
-Ürün görselleri, ürün kodları, ölçüler ve stok miktarları örnektir; gerçek kayıtlar panelden girilir.
-GitHub hedefi: https://github.com/yusuf-basaran/Sayder
+Ürün ve stok kataloğu: HTML5, Vanilla JavaScript ES Modules, derlenen Tailwind CSS,
+Vite, Supabase JS v2, PostgreSQL/RLS/Auth/Storage ve Vercel.
 
-## SAYDER projesi için hazır kurulum
+- Katalog: https://sayder.vercel.app/
+- Yönetim: https://sayder.vercel.app/admin.html
+- GitHub: https://github.com/yusuf-basaran/Sayder
+- Supabase proje ref'i: `hhfnxebtbpsttdsnplgd`
+- Yönetici e-postası: `sayder@sunideri.com`
 
-Supabase proje ref'i: `hhfnxebtbpsttdsnplgd`.
-API URL: `https://hhfnxebtbpsttdsnplgd.supabase.co`.
-Yönetici hesabı: `sayder@sunideri.com` (Authentication > Users'ta oluşturuldu).
+## Veritabanı ve yönetici kurulumu
 
-Bu proje için `supabase/sayder-kurulum.sql` dosyası setup.sql, sample-data.sql ve
-bu e-postayı admin olarak atayan SQL'i birleştirir. SQL Editor > New query'de
-**dosyanın tamamını** çalıştırın. Sonuçta admin e-postasının göründüğü bir satır
-çıkmalıdır. Ayrı scriptleri yeniden çalıştırmanız gerekmez.
+Yeni kurulumda Supabase SQL Editor'de `supabase/sayder-kurulum.sql` dosyasının
+tamamını çalıştırın. Script tabloları, indeksleri, RLS kurallarını ve görsel
+bucket'ını kurar; Authentication > Users'ta bulunan `sayder@sunideri.com`
+hesabını admin olarak atar. Kategori veya ürün kaydı otomatik eklenmez.
 
-Yerel `.env.local` dosyası GitHub'a gönderilmez.
-Vercel ortam değişkenleri girilmemişse uygulama `js/publicConfig.js` dosyasındaki
-SAYDER proje URL'sini ve anon/public anahtarı kullanır. Bu dosya kaynak deposundadır;
-tarayıcıya zaten gönderilen public bağlantı değerlerini içerir. service_role,
-secret key veya şifre içermez. Veri değiştirme yetkisi SQL RLS ile korunur.
-SQL kurulumu 14 Ekim 2026 tarihinde public REST API üzerinden doğrulandı.
-Yerel `.env.local` içinde `VITE_DEMO_MODE=false` kullanılır; katalog Supabase'den okunur.
-9 örnek ürün veritabanında yer alır; örnekler yetkili admin panelinden silinebilir.
-Vercel'de bağlantı için ek environment variable zorunlu değildir. Başka bir projeyi
-kullanacaksanız VITE_SUPABASE_URL ve VITE_SUPABASE_ANON_KEY ile varsayılanı geçersiz
-kılın ve Redeploy yapın. Key rotasyonunda publicConfig.js veya env değerlerini güncelleyin.
-
-## 1. Önce SQL
-
-Supabase projenizde SQL Editor'ü açın. `supabase/setup.sql` dosyasının **tamamını**
-yapıştırıp Run'a basın. Bu, yeni proje için tek çalıştırmada tabloları, kısıtları,
-indeksleri, RLS politikalarını ve `product-images` bucket'ını kurar.
-Script tekrar çalıştırılabilir; mevcut eski bir şemayı migrate etmez.
-Başka isimli, önceden tanımlanmış geniş erişimli politikalar varsa bunları ayrıca inceleyin;
-PostgreSQL permissive politikaları OR ile birleştirir.
-
-`categories` tablosunda is_active alanı istenmediği için tüm kategoriler okunabilir.
-`products` tablosunda ziyaretçi ve normal kullanıcı sadece aktif satırları görür.
-`authenticated` tek başına yönetici sayılmaz. Yönetici olmak için `admin_users`
-listesinde bulunmak gerekir. Bu listeyi tarayıcı istemcileri değiştiremez.
-
-## 2. İlk yöneticiyi oluşturun
-
-1. Authentication > Users üzerinden e-posta/şifre kullanıcısı oluşturun; e-postasını
-   doğrulayın. Şifreyi koda veya GitHub'a yazmayın.
-2. Auth ayarlarında herkese açık kullanıcı kaydını kapatın. Uygulama zaten kayıt
-   ekranı sunmaz; RLS kayıt açık kalsa bile sıradan kullanıcılara yazma yetkisi vermez.
-3. SQL Editor'de e-postayı değiştirerek çalıştırın:
+Başka bir projede yalnız şema için `supabase/setup.sql` kullanılabilir. İlk admin
+hesabını Authentication > Users üzerinden oluşturup e-postasını doğrulayın.
+Ardından SQL Editor'de e-postayı uygun değerle değiştirip çalıştırın:
 
 ```sql
 insert into public.admin_users(user_id)
-select id from auth.users
-where lower(email) = lower('admin@firmaniz.com')
-on conflict (user_id) do nothing;
-
--- Sonuç bir satır olmalı; 0 satırsa kullanıcı henüz yok veya e-posta farklı.
-select u.id, u.email from auth.users u
-join public.admin_users a on a.user_id = u.id;
+select id from auth.users where lower(email)=lower('sayder@sunideri.com')
+on conflict(user_id) do nothing;
 ```
 
-Admin atamasını kaldırmak için SQL Editor'de:
+Auth ayarlarından herkese açık kullanıcı kaydını kapatın. Admin atamasını
+kaldırmak için SQL Editor'de ilgili `admin_users` satırını silin.
+Giriş yapmış olmak yönetici olmak için yeterli değildir; tüm yazma işlemleri
+admin_users üyeliğini kontrol eden RLS ile korunur. Anon ziyaretçiler yalnız
+aktif ürünleri ve kategorileri okuyabilir. Admin listesi tarayıcıdan değiştirilemez.
 
-```sql
-delete from public.admin_users
-where user_id in (select id from auth.users where email = 'admin@firmaniz.com');
-```
+## Yerel geliştirme
 
-Sonraki veritabanı/Storage isteklerinde yetki düşer; mevcut ekrandaki veriler
-bir sonraki istek veya sayfa yenilemesine kadar kalabilir.
-Auth Site URL'yi yayınlanan alan adına, geliştirme redirect URL'sini
-`http://localhost:5173` adresine ayarlayın. Supabase güvenlik danışmanlarını çalıştırın.
-
-## 3. Yerelde çalıştırma
-
-Node.js 22.12+ (tercihen Node 24) ve pnpm 11.25.0 gerekir.
+Node.js 22.12+ (Node 24 önerilir) ve pnpm 11.25.0 kullanın:
 
 ```bash
 npm install -g pnpm@11.25.0
 pnpm install --frozen-lockfile
-```
-
-PowerShell:
-
-```powershell
-Copy-Item .env.example .env.local
-```
-
-macOS/Linux:
-
-```bash
-cp .env.example .env.local
-```
-
-`.env.local` içindeki `VITE_SUPABASE_URL` ve `VITE_SUPABASE_ANON_KEY` değerlerini
-Supabase proje ayarlarından alın. Publishable key (`sb_publishable_...`) önerilir;
-legacy anon key de desteklenir. **service_role / sb_secret_ kullanmayın.**
-VITE_ değerleri derlenen tarayıcı paketinde görünür; şifre veya sunucu sırrı değildir.
-Derleme yanlışlıkla service_role/secret key kullanılırsa durur.
-
-`VITE_WHATSAPP_NUMBER` ülke kodu dahil yalnız rakamlardan oluşmalıdır (Türkiye: 90 + numara).
-Tanımlanmazsa WhatsApp bağlantıları devre dışı görünür. Firma bilgilerini de doldurun.
-
-```bash
 pnpm dev
+```
+
+Katalog `/`, yönetim `/admin.html` adresindedir. Uygulama yalnız Supabase'den
+veri okur; bağlantı yoksa anlaşılır bir hata ve yeniden deneme kontrolü gösterir.
+HTML belgelerini `file://` ile açmayın.
+
+`js/publicConfig.js`, tarayıcı istemcisine ait public proje URL'si ve anon
+anahtarı içerir. Bu değerler tarayıcıda görünür; veri değiştirme iznini RLS
+belirler. service_role, sb_secret_ ve hesap şifresi bu dosyaya konulamaz.
+Derleme, yanlışlıkla ayrıcalıklı anahtar girilirse durur.
+
+Başka projeye bağlanmak veya firma bilgilerini değiştirmek için `.env.example`
+şablonunu `.env.local` dosyasına kopyalayıp geçerli değerleri girin. VITE_ değerleri
+publicConfig.js değerlerinin önüne geçer. Değişiklikten sonra dev sunucusunu
+yeniden başlatın. `.env.local` GitHub'a gönderilmez.
+
+## Ürün yönetimi
+
+Yetkili e-posta ve kendi şifrenizle yönetim paneline giriş yapın:
+
+1. Kategori oluşturun; ad ve slug girin. Türkçe adlar otomatik slug'a çevrilebilir.
+2. Ürün adı, benzersiz ürün kodu, kategori, renk ve materyali girin.
+3. En (cm), kalınlık (mm) ve rulo uzunluğunu (metre) girin.
+4. Kalan stok miktarını ve birimini (metre/rulo/adet) belirleyin.
+5. HTTPS görsel URL'si veya en fazla 5 MB JPG/PNG/WebP/AVIF dosyası ekleyin.
+6. Ürünün katalogda yayınlanıp yayınlanmayacağını seçip kaydedin.
+
+Stok negatif olamaz. Rulo uzunluğu ve kalan stok birbirinden bağımsızdır.
+Bu uygulama katalogdur; sipariş veya satışla otomatik stok düşürme yapmaz.
+Liste üzerinde düzenleme, yayın durumu değiştirme ve onaylı silme kontrolleri vardır.
+Kullanılan kategori, ürünler başka bir kategoriye taşınana kadar silinemez.
+
+Katalogda arama ürün adı, kodu, renk, materyal ve ölçü metnini tarar; debounce
+250 ms'dir. Katalog 12, yönetim 25 kayıtlık sunucu sayfalaması kullanır.
+Stokta olanlar filtresi `stock_quantity > 0` koşulunu uygular. Ürün linkleri
+`/?product=<uuid>` ve Vercel üzerinde `/urun/<uuid>` biçimindedir.
+
+## Görseller ve Storage
+
+Gerçek ürün fotoğrafları URL veya Supabase Storage ile yönetilir. Görseli
+bulunmayan ürünlerde yalnız nötr bir yer tutucu gösterilir.
+`product-images` public bucket'tır: dosya URL'sini bilen herkes dosyayı okuyabilir.
+Yükleme/değiştirme/silme izinleri yalnız admin'e açıktır. Pasif ürünün dosyasını
+gizlemek gerekiyorsa private bucket ve signed URL tasarımı gerekir.
+
+Yeni dosyalar UUID'li yollarla yüklenir. Veritabanı kaydı başarısız olursa yeni
+dosya temizlenmeye çalışılır. Ürün/görsel değişiminde eski dosya otomatik silinmez;
+başka ürün aynı URL'yi kullanabilir. Kullanılmayan dosyaları Storage'da kontrollü
+temizleyin. Ağ kopması sonrası panelde işlemin sonucunu kontrol edin.
+
+## GitHub ve Vercel
+
+Kilit dosyasını commit edin; node_modules, dist ve yerel env dosyaları Git'e girmez:
+
+```bash
+git add .
+git commit -m "Update SAYDER catalog"
+git push origin main
+```
+
+Vercel'de GitHub deposunu import edin. Framework Vite, Node.js 24.x,
+Install Command `pnpm install --frozen-lockfile`, Build Command `pnpm build`,
+Output Directory `dist`. Ayarlar `vercel.json` dosyasında bulunur.
+
+SAYDER public bağlantısı kodda olduğundan bağlantı için env değişkeni zorunlu
+değildir. Başka bağlantı veya firma bilgileri için şu değerler kullanılabilir:
+
+| Değişken | Kullanım |
+| --- | --- |
+| VITE_SUPABASE_URL | Supabase proje URL'si |
+| VITE_SUPABASE_ANON_KEY | Publishable veya legacy anon key |
+| VITE_COMPANY_NAME | Firma adı |
+| VITE_COMPANY_EMAIL | İletişim e-postası |
+| VITE_COMPANY_PHONE | Telefon |
+| VITE_COMPANY_ADDRESS | Adres |
+| VITE_WORKING_HOURS | Çalışma saatleri |
+| VITE_WHATSAPP_NUMBER | Ülke kodu dahil yalnız rakamlar |
+
+Environment Variables değişiklikleri için Redeploy gerekir. Key rotasyonunda
+publicConfig.js veya env değerlerini güncelleyin. Özel Supabase domain'i
+kullanılırsa URL doğrulaması ve CSP connect-src listesi de güncellenmelidir.
+
+## Doğrulama
+
+```bash
 pnpm test
 pnpm build
 pnpm preview
 ```
 
-Katalog `/`, yönetim `/admin.html` adresindedir. `file://` ile HTML açmayın;
-ES Modules, import.meta.env ve CSS derlemesi geliştirme sunucusu gerektirir.
-Çevre değişkenlerini değiştirince dev sunucusunu yeniden başlatın.
+Testler PGlite PostgreSQL motorunda RLS, admin ataması, yetki iptali, CRUD,
+Storage izinleri, foreign key, ölçü ve stok kısıtlarını doğrular. HTML kaçışı,
+HTTPS görsel adresi, Türkçe slug ve arama karakterleri de kontrol edilir.
 
-Supabase olmadan tasarımı görmek için `.env.local` içine `VITE_DEMO_MODE=true` yazıp
-`pnpm dev` çalıştırın. Örnek kayıtlar açıkça işaretlenir; admin demo yazma yapmaz.
-Production derlemesi demo modunda durur. Gerçek yayında `VITE_DEMO_MODE=false` kullanın.
+Firma iletişim bilgileri kullanıcının sağladığı kaynaklardan alınmıştır:
+[Yandex](https://yandex.com.tr/maps/-/CXBIr8Ym),
+[Facebook](https://www.facebook.com/groups/877165027323660),
+[Instagram](https://www.instagram.com/saydersunideri/).
 
-## 4. Ürün ve kategori yönetimi
-
-1. Yetkili e-posta/şifreyle giriş yapın.
-2. Kategori ekle/düzenle penceresinden kategori oluşturun. Türkçe ad otomatik
-   ASCII slug'a dönüşür; çakışmada farklı slug girin.
-3. Ürün kodu ve rengi girin. Ölçüler: en (cm), kalınlık (mm), standart rulo uzunluğu (metre).
-   Kalan stok ve birimi (metre/rulo/adet) ayrıdır; rulo uzunluğu kalan stok anlamına gelmez.
-4. HTTPS görsel URL'si girin veya JPG/PNG/WebP/AVIF yükleyin (5 MB sınırı).
-   İkisini girerseniz yüklenen dosya kullanılır.
-5. Aktif ürün katalogda görünür. Pasif ürün sadece admin listesinde görünür.
-6. Liste üzerinde düzenleme, yayın durumu değiştirme ve onaylı silme yapabilirsiniz.
-
-Ürünlerde kullanılan kategori silinemez; önce ürünleri taşıyın. SQL foreign key bunu
-zorunlu kılar. Hatalar kullanıcıya textContent ile gösterilir. Ürün metinleri HTML
-olarak çalıştırılmaz; görsel URL'leri HTTPS ile sınırlandırılır.
-
-Katalog 12, yönetim 25 ürünlük sunucu sayfalaması kullanır. Arama ürün adı,
-ürün kodu, renk, materyal ve ölçü metnini ILIKE ile tarar; debounce 250 ms.
-"Sadece stokta olanlar" filtresi stock_quantity > 0 koşulunu uygular.
-Stok admin panelinden ürün düzenlenerek güncellenir; stok miktarı negatif olamaz.
-Bu katalog sipariş/satış sistemi değildir; siparişle otomatik stok düşmez.
-Bu filtreleme anlık arama etkileşimidir; Supabase Realtime aboneliği değildir.
-Başka bir adminin değişikliklerini görmek için sayfayı yenileyin.
-WhatsApp ürün linki `/?product=<uuid>` şeklindedir; listede yüklenmemiş ürün de
-doğrudan sorgulanarak modalda açılır. `/urun/<uuid>` Vercel üzerinde alternatif yoldur.
-
-## 5. Storage davranışı
-
-`product-images` **public** bucket'tır. Listeleme/yazma/silme RLS ile yalnız admin'e
-açıktır; public dosya URL'sini bilen herkes dosyayı indirebilir. Pasif ürünün
-görselini de URL üzerinden okuyabilir. Gizli görseller için private bucket ve
-yetkili signed URL tasarımı gerekir.
-
-Yeni görsel UUID ile yeni dosya yoluna yüklenir, eski dosyanın üzerine yazılmaz.
-Başarısız veritabanı kaydında yeni dosya temizlenmeye çalışılır; hata bildirilir.
-Görsel değişiminde / ürün siliminde eski dosya otomatik silinmez: başka ürün aynı
-URL'yi kullanabilir. Kullanılmayan dosyaları Storage'da kontrollü temizleyin.
-Auth/Storage HTTP işlemleriyle ürün kaydı ortak transaction değildir; ağ kopması
-sonrası sonucu panelde kontrol edin.
-
-### Silinebilir örnekler
-
-Yerel önizlemede `VITE_DEMO_MODE=true` ile 9 örnek gösterilir. Bu önizleme salt
-okunurdur; ziyaretçi sayfasında ürün/örnek düzenleme veya silme kontrolü yoktur.
-Örnekleri yönetmek için Supabase'e bağlanın, sample-data.sql dosyasını çalıştırın
-ve yetkili admin hesabıyla /admin.html üzerinden işlem yapın. İstemci API'si
-doğrudan çağrılsa bile RLS yalnız admin_users listesine alınan hesaba yazma izni verir.
-
-Canlı Supabase'e isteğe bağlı örnek veri eklemek için setup.sql sonrasında
-`supabase/sample-data.sql` dosyasını çalıştırın. Örneklerin kodu ORNEK-SYD- ile başlar,
-is_sample=true işaretlidir ve panelden normal ürün gibi silinebilir.
-Örneği gerçek ürüne dönüştürürken kendi fotoğrafınızı, kodunuzu ve stok miktarını
-girin; "Örnek ürün olarak işaretle" kutusunu kaldırın.
-Seed tekrar çalıştırılırsa mevcut ürünün değişmiş stok miktarını ezmez;
-silinmiş örnekleri geri ekler. Otomatik çalışmaz.
-Tüm örnekleri SQL Editor'den kaldırmak için `delete from public.products where is_sample = true;`
-kullanılabilir; gerçek ürünler bu koşula dahil olmaz.
-
-Örnek doku atlası `public/samples/leather-atlas.png` yerel dosyasıdır; altı farklı
-renk CSS background-position ile gösterilir. Gerçek ürün URL'si veya yüklenen fotoğraf
-eklendiğinde o fotoğraf gösterilir. Üretim derlemesi demo moduna izin vermez.
-
-## 6. GitHub'a aktarım
-
-GitHub'da boş depo oluşturun. `.env.local` commit edilmez; kilit dosyası commit edilir.
-Proje klasöründe çalıştırın; URL'yi kendi deponuzla değiştirin:
-
-```bash
-git init
-git add .
-git commit -m "Add Supabase product catalog and admin panel"
-git branch -M main
-git remote add origin https://github.com/yusuf-basaran/Sayder.git
-git push -u origin main
-```
-
-Mevcut Git deposunda `git init` / remote ekleme yerine mevcut branch ve remote'u
-kullanın. Zip'i depoya tek dosya olarak yüklemeyin; içeriğini açıp proje dosyalarını aktarın.
-
-## 7. Vercel deployment
-
-Vercel > Add New Project > Import Git Repository. Bu klasörü repo köküne koyduysanız
-Root Directory kök dizindir; monorepo içinde ilgili proje klasörünü seçin.
-Framework Vite, Install Command `pnpm install --frozen-lockfile`, Build Command
-`pnpm build`, Output Directory `dist`. `vercel.json` bu ayarları içerir.
-Node.js sürümünü 24.x seçin.
-
-Environment Variables ile aşağıdaki varsayılanları değiştirebilirsiniz (Production;
-gerekiyorsa Preview ve Development). SAYDER bağlantısı için publicConfig.js yeterlidir:
-
-| Değişken | Değer |
-| --- | --- |
-| VITE_SUPABASE_URL | https://PROJE.supabase.co |
-| VITE_SUPABASE_ANON_KEY | publishable veya legacy anon key |
-| VITE_COMPANY_NAME | Gerçek firma adı |
-| VITE_COMPANY_EMAIL | İletişim e-postası |
-| VITE_COMPANY_PHONE | 0530 360 63 63 |
-| VITE_COMPANY_ADDRESS | Firma adresi |
-| VITE_WORKING_HOURS | Çalışma saatleri |
-| VITE_WHATSAPP_NUMBER | Ülke kodu dahil rakamlar |
-| VITE_DEMO_MODE | false |
-
-Env değişiklikleri build-time'dır: her değişiklikten sonra Redeploy yapın.
-Supabase Data API'de public schema'nın açık olduğunu doğrulayın.
-`vercel.json` tüm istekleri index'e çevirmez: admin belgesi ve asset'ler korunur,
-yalnız `/admin` ve `/urun/:id` route'ları rewrite edilir. Güvenlik header'ları ve
-CSP vardır; standart Supabase alan adı desteklenir. Özel Supabase domain'i
-kullanacaksanız client URL doğrulamasını ve CSP connect-src listesini dar biçimde güncelleyin.
-
-Yayın sonrası: anonim aktif/pasif görünürlüğü, admin olmayan kullanıcının yazamaması,
-admin CRUD, 5 MB yükleme, silme onayı, WhatsApp, ürün linki ve mobil görünümü kontrol edin.
-İlk kullanımda kategori ekleyin veya isteğe bağlı örnek scriptini çalıştırın.
-setup.sql boş katalog kurar, örnekler ayrı sample-data.sql içindedir.
-
-## Dosya ağacı
-
-```text
-├── index.html
-├── admin.html
-├── css/style.css
-├── js/
-│   ├── supabaseClient.js
-│   ├── publicConfig.js
-│   ├── catalog.js
-│   ├── admin.js
-│   ├── utils.js
-│   └── demo.js
-├── public/placeholder.svg
-├── public/samples/leather-atlas.png
-├── supabase/setup.sql
-├── supabase/sample-data.sql
-├── supabase/sayder-kurulum.sql
-├── tests/security.test.js
-├── vite.config.js
-├── tailwind.config.js
-├── postcss.config.js
-├── package.json
-├── pnpm-lock.yaml
-├── pnpm-workspace.yaml
-├── .env.example
-├── .gitignore
-├── vercel.json
-└── README.md
-```
-
-## Doğrulama kapsamı
-
-`pnpm test`: PGlite PostgreSQL motorunda Auth/Storage test şemalarıyla gerçek SQL
-kurulumu ve tekrar çalıştırma, anon erişimi, sıradan kullanıcının yazamaması,
-admin CRUD, admin atamasının kaldırılması, Storage RLS, foreign key ve ölçü kısıtları.
-Ek olarak HTML kaçışı, URL ve arama karakterleri kontrol edilir.
-Bu testler canlı Supabase Auth/Storage servisi veya Vercel deployment'ını doğrulamaz.
-
-Resmi kaynaklar:
-- [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)
-- [E-posta/şifre girişi](https://supabase.com/docs/reference/javascript/auth-signinwithpassword)
-- [Storage erişim kontrolü](https://supabase.com/docs/guides/storage/security/access-control)
-- [Vite environment variables](https://vite.dev/guide/env-and-mode)
-- [Vercel yapılandırması](https://vercel.com/docs/project-configuration)
+Resmi teknik kaynaklar:
+[Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security),
+[Supabase Auth](https://supabase.com/docs/reference/javascript/auth-signinwithpassword),
+[Storage](https://supabase.com/docs/guides/storage/security/access-control),
+[Vite](https://vite.dev/guide/env-and-mode),
+[Vercel](https://vercel.com/docs/project-configuration).

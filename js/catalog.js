@@ -1,10 +1,10 @@
-import { supabase, configured, demoMode, applyCompany, company, whatsappLink } from './supabaseClient.js';
-import { $, escapeHTML as esc, sizeLabel, stockLabel, productMedia, searchPattern, wireDialog } from './utils.js';
+import { supabase, configured, applyCompany, company, whatsappLink } from './supabaseClient.js';
+import { $, escapeHTML as esc, stockLabel, productMedia, searchPattern, wireDialog } from './utils.js';
 applyCompany(); document.title = `${company.name} — Ürün kataloğu`; $('#year').textContent = new Date().getFullYear();
 const grid = $('#products'), dialog = $('#product-dialog'); wireDialog(dialog);
 const pageSize = 12;
 let category = '', term = '', offset = 0, total = 0, version = 0, stockOnly = false, sort = 'newest';
-let controller, demo, products = [], loading = false, searchTimer;
+let controller, products = [], loading = false, searchTimer;
 function notice(message = '') { $('#notice').textContent = message; $('#notice').hidden = !message; }
 function contact(product, className = 'card-link') {
   const href = whatsappLink(product);
@@ -14,11 +14,13 @@ function contact(product, className = 'card-link') {
 function renderCards() {
   grid.innerHTML = products.length ? products.map(p => `<article class="product-card"><div class="product-visual">
     <button class="product-image-button" data-product="${esc(p.id)}" aria-label="${esc(p.product_code)} ${esc(p.name)} detaylarını aç">${productMedia(p)}<span class="image-code">${esc(p.product_code)}</span><span class="image-expand" aria-hidden="true">↗</span></button></div>
-    <div class="card-body"><p class="card-category">${esc(p.categories?.name || 'Suni deri')}${p.is_sample ? ' · Örnek' : ''}</p><h3><button data-product="${esc(p.id)}">${esc(p.name)}</button></h3>
-    <p class="card-color">${p.is_sample && Number.isInteger(p.sample_image_index) ? `<span class="color-dot color-dot-${p.sample_image_index}" aria-hidden="true"></span>` : ''}${esc(p.color || p.color_options?.join(', ') || 'Renk bilgisi yok')}</p>
+    <div class="card-body"><p class="card-category">${esc(p.categories?.name || 'Suni deri')}</p><h3><button data-product="${esc(p.id)}">${esc(p.name)}</button></h3>
+    <p class="card-color">${esc(p.color || p.color_options?.join(', ') || 'Renk bilgisi yok')}</p>
     <div class="card-specs"><span class="spec-chip">${esc(p.dimensions.width_cm)} cm en</span><span class="spec-chip">${esc(p.dimensions.thickness_mm)} mm</span><span class="spec-chip">${esc(p.dimensions.roll_length_m)} m rulo</span></div>
     <div class="card-stock"><span class="stock-label ${Number(p.stock_quantity) > 0 ? '' : 'empty'}">${Number(p.stock_quantity) > 0 ? 'Stokta' : 'Stok tükendi'}</span><strong class="stock-amount">${esc(stockLabel(p))}</strong></div></div>${contact(p)}</article>`).join('')
-    : '<p class="empty-state">Aramanıza uygun ürün bulunamadı.<br>Arama kelimesini veya filtreleri değiştirebilirsiniz.</p>';
+    : (term || category || stockOnly
+      ? '<p class="empty-state">Aramanıza uygun ürün bulunamadı.<br>Arama kelimesini veya filtreleri değiştirebilirsiniz.</p>'
+      : '<p class="empty-state">Henüz ürün eklenmedi.</p>');
   wireImages();
 }
 function wireImages() { document.querySelectorAll('#products img, #detail img').forEach(img => img.addEventListener('error', () => { img.src = '/placeholder.svg'; }, { once: true })); }
@@ -30,21 +32,14 @@ async function load(reset = false) {
   $('#result-count').textContent = 'Ürünler yükleniyor…';
   try {
     let data, count;
-    if (demo) {
-      let filtered = demo.products.filter(p => (!category || p.category_id === category) && (!stockOnly || p.stock_quantity > 0)
-        && `${p.product_code} ${p.name} ${p.color} ${p.material} ${sizeLabel(p.dimensions)}`.toLocaleLowerCase('tr').includes(term.toLocaleLowerCase('tr')));
-      if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
-      data = filtered.slice(offset, offset + pageSize); count = filtered.length;
-    } else {
-      let query = supabase.from('products').select('*,categories(name)', { count: 'exact' }).eq('is_active', true)
-        .order(sort === 'name' ? 'name' : 'created_at', { ascending: sort === 'name' }).order('id', { ascending: false })
-        .range(offset, offset + pageSize - 1);
-      if (category) query = query.eq('category_id', category);
-      if (stockOnly) query = query.gt('stock_quantity', 0);
-      if (term) query = query.ilike('search_text', searchPattern(term));
-      const result = await query.abortSignal(controller.signal); if (result.error) throw result.error;
-      ({ data, count } = result);
-    }
+    let query = supabase.from('products').select('*,categories(name)', { count: 'exact' }).eq('is_active', true)
+      .order(sort === 'name' ? 'name' : 'created_at', { ascending: sort === 'name' }).order('id', { ascending: false })
+      .range(offset, offset + pageSize - 1);
+    if (category) query = query.eq('category_id', category);
+    if (stockOnly) query = query.gt('stock_quantity', 0);
+    if (term) query = query.ilike('search_text', searchPattern(term));
+    const result = await query.abortSignal(controller.signal); if (result.error) throw result.error;
+    ({ data, count } = result);
     if (request !== version) return;
     products.push(...data); offset += data.length; total = count || 0;
     renderCards(); $('#result-count').textContent = `${total} ürün ${offset < total ? `· ${offset} gösteriliyor` : 'listeleniyor'}`;
@@ -79,15 +74,14 @@ $('#sort').addEventListener('change', () => { sort = $('#sort').value; load(true
 $('#load-more').addEventListener('click', () => load()); $('#retry').addEventListener('click', () => start());
 async function start() {
   try {
-    if (demoMode) { demo = await import('./demo.js'); $('#demo-tools').hidden = false; }
-    else if (!configured) throw new Error('config');
-    const result = demo ? { data: demo.categories } : await supabase.from('categories').select('id,name,slug').order('name');
+    if (!configured) throw new Error('config');
+    const result = await supabase.from('categories').select('id,name,slug').order('name');
     if (result.error) throw result.error;
     $('#categories').innerHTML = [{ id: '', name: 'Tüm ürünler' }, ...result.data].map(c => `<button class="category-tab" data-category="${esc(c.id)}" aria-pressed="${c.id === category}"><span>${esc(c.name)}</span><span class="tab-arrow" aria-hidden="true">→</span></button>`).join('');
     await load(true);
     const id = new URLSearchParams(location.search).get('product') || (location.pathname.startsWith('/urun/') ? location.pathname.split('/')[2] : '');
     if (id) {
-      const p = demo ? demo.products.find(p => p.id === id) : (/^[0-9a-f-]{36}$/i.test(id) ? (await supabase.from('products').select('*,categories(name)').eq('id', id).eq('is_active', true).maybeSingle()).data : null);
+      const p = (/^[0-9a-f-]{36}$/i.test(id) ? (await supabase.from('products').select('*,categories(name)').eq('id', id).eq('is_active', true).maybeSingle()).data : null);
       if (p) openDetail(p); else notice('Bu ürün bulunamadı veya yayından kaldırıldı.');
     }
   } catch {
