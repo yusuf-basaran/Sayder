@@ -9,7 +9,7 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
   const admin = '00000000-0000-4000-8000-000000000001';
   const user = '00000000-0000-4000-8000-000000000002';
   const category = '00000000-0000-4000-8000-000000000003';
-  // Yalnız test harness: Supabase'in Auth/Storage şemalarını simüle eder.
+  // Test ortamında Auth ve Storage şemalarını oluşturur.
   await db.exec(`
     create role anon; create role authenticated;
     create schema auth; create schema storage;
@@ -97,7 +97,7 @@ test('Supabase şeması ve RLS: anon, normal kullanıcı, admin, iptal edilmiş 
     await assert.rejects(db.query("update public.products set stock_quantity='NaN'::numeric"));
   });
   assert.equal((await db.query('select * from public.products')).rows.length, 2);
-  // Kullanıcının SQL Editor'de çalıştıracağı birleşik kurulum: mevcut Auth hesabı.
+  // Birleşik kurulumun mevcut Auth hesabıyla uyumluluğunu kontrol eder.
   await db.query('delete from public.admin_users where user_id=$1', [admin]);
   await db.query('update auth.users set email=$1 where id=$2', ['sayder@sunideri.com', admin]);
   const connectedSetup = await readFile(new URL('../supabase/sayder-kurulum.sql', import.meta.url), 'utf8');

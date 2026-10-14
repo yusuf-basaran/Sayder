@@ -1,82 +1,80 @@
 # SAYDER SUNİ DERİ
 
-Ürün ve stok kataloğu: HTML5, Vanilla JavaScript ES Modules, derlenen Tailwind CSS,
-Vite, Supabase JS v2, PostgreSQL/RLS/Auth/Storage ve Vercel.
+Suni deri, döşemelik ve kapitone ürünleri için çevrimiçi katalog ve stok yönetimi.
 
-- Katalog: https://www.sayder.tech/
-- Yönetim: https://www.sayder.tech/admin.html
-- GitHub: https://github.com/yusuf-basaran/Sayder
-- Supabase proje ref'i: `hhfnxebtbpsttdsnplgd`
-- Yönetici e-postası: `sayder@sunideri.com`
+- [Ürün kataloğu](https://www.sayder.tech/)
+- [Yönetim paneli](https://www.sayder.tech/admin.html)
+- [GitHub deposu](https://github.com/yusuf-basaran/Sayder)
 
-## Arama motoru ve paylaşım bilgileri
+## Özellikler
 
-Ana adres `https://www.sayder.tech/` olarak ayarlanmıştır; kök alan adı Vercel'de
-bu adrese yönlendirilir. Başlık, açıklama, canonical, Open Graph, Twitter Card,
-kurumsal JSON-LD, favicon ve sosyal paylaşım görseli HTML içinde tanımlıdır.
-`public/robots.txt` ve `public/sitemap.xml` arama motorlarını ana kataloğa yönlendirir;
-yönetim paneli HTML ve HTTP header üzerinden noindex olarak korunur.
-Google Search Console'da alan adını doğruladıktan sonra `sitemap.xml` gönderilebilir.
-Firma adresi veya iletişim bilgileri değişirse index.html içindeki JSON-LD de güncellenmelidir.
+- Ürün adı, kodu, renk, materyal ve ölçüye göre arama
+- Kategori, stok durumu ve sıralama filtreleri
+- Teknik detay penceresi ve ürüne özel WhatsApp bağlantısı
+- Kalan stok miktarı ve metre, rulo veya adet birimi
+- Ürün ve kategori yönetimi; aktif/pasif yayın durumu
+- Görsel URL veya Supabase Storage üzerinden fotoğraf yükleme
+- 18 dil, kalıcı dil tercihi ve sağdan sola yazım desteği
+- Mobil uyumlu arayüz ve skeleton yükleme görünümü
 
-Kullanıcının sağladığı kurumsal PNG dosyası `public/sayder-original.png` içinde
-korunur. Sitede `sayder-logo.webp` ile tam logo kullanılır. Soldaki renkli amblem
-ikonlar için ayrılmıştır; `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png`
-ve `logo-512.png` bu amblemi kullanır. Paylaşım kartı da tam kurumsal logoyu içerir.
-Logo ve ikon dosyalarının arka planı şeffaftır. Marka renkleri, tipografi ve
-bileşen kuralları `BRAND.md` içinde; uygulama stilleri `css/identity.css` içindedir.
+## Teknoloji
 
-## Dil seçenekleri
+HTML5, Vanilla JavaScript ES Modules, Tailwind CSS, Vite, Supabase JS v2,
+PostgreSQL, Supabase Auth ve Storage. Yayın Vercel üzerinden yapılır.
 
-Katalog ve yönetim paneli 18 arayüz dili içerir. Türkçe, İngilizce, Arapça,
-Rusça, Almanca, Fransızca, İspanyolca, Bulgarca, Yunanca, Gürcüce, Ermenice,
-Azerbaycanca, Farsça, Romence, Ukraynaca, İbranice, Kürtçe Kurmancî ve Soranî.
-Seçim tarayıcıda hatırlanır; `?lang=bg` gibi bağlantılar da desteklenir.
-Arapça, Farsça, İbranice ve Soranî sağdan sola görünür. Sayfa yenilenmeden
-dil değişir, formlardaki değerler korunur. Stok sayıları ve WhatsApp mesajları
-seçili dile göre biçimlendirilir. Ürün adları, renkler ve açıklamalar yönetici
-tarafından yazıldıkları dilde kalır. Tanımlı standart kategori adları çevrilir.
+## Proje yapısı
 
-| Ülkeler | Dil seçenekleri |
-| --- | --- |
-| Bulgaristan | Bulgarca |
-| Yunanistan, Kıbrıs Cumhuriyeti | Yunanca |
-| Gürcistan | Gürcüce |
-| Ermenistan | Ermenice |
-| Azerbaycan | Azerbaycanca |
-| İran | Farsça |
-| Irak | Arapça, Kürtçe Kurmancî ve Soranî |
-| Suriye, Lübnan, Mısır, Libya | Arapça (Lübnan için Fransızca da mevcut) |
-| Romanya | Romence |
-| Ukrayna | Ukraynaca |
-| Rusya | Rusça |
-| Kuzey Kıbrıs Türk Cumhuriyeti | Türkçe |
-| İsrail | İbranice, Arapça |
+```text
+index.html               Ziyaretçi kataloğu
+admin.html               Yönetim paneli
+css/                     Arayüz, marka ve yükleme stilleri
+js/                      Bağlantı, katalog, yönetim ve dil modülleri
+public/                  Kurumsal görseller, ikonlar, robots.txt ve sitemap.xml
+supabase/setup.sql       Veritabanı şeması ve erişim politikaları
+supabase/sayder-kurulum.sql  Şema ve ilk yönetici kurulumu
+tests/                   Güvenlik ve dil testleri
+BRAND.md                 Görsel kimlik rehberi
+vercel.json              Yayın ve güvenlik başlıkları
+.env.example             Ortam değişkenleri şablonu
+```
 
-Çeviri sözlükleri `js/translations.js` ve `js/translations-extra.js` içindedir.
-Ek bölgesel dillerin metinleri geliştirme aşamasında makine çevirisiyle hazırlanmıştır;
-ticari terminoloji anadili konuşan bir kişi tarafından bu dosyalarda gözden geçirilebilir.
-Ziyaret sırasında harici çeviri servisi çağrılmaz ve ürün verileri çeviri servisine gönderilmez.
+## Yerel kurulum
 
-## Yükleme görünümü
+Node.js 22.12 veya üzeri ve pnpm 11.25.0 gerekir.
 
-İlk açılışta ve arama/filtre/sıralama sorgularında ürün kartı skeleton görünümü
-gösterilir. Daha fazla ürün yüklerken mevcut kartlar korunur. Kategoriler ilk
-sorguda kendi yükleme şablonunu gösterir. Başarı, boş sonuç ve hata durumlarında
-skeleton kaldırılır. Dekoratif parçalar ekran okuyucudan gizlenir; mevcut
-yükleme durum metni ve aria-busy kullanılır. Azaltılmış hareket tercihinde
-parlama animasyonu kapalıdır.
+```bash
+npm install -g pnpm@11.25.0
+pnpm install --frozen-lockfile
+```
 
-## Veritabanı ve yönetici kurulumu
+`.env.example` dosyasını `.env.local` olarak kopyalayıp Supabase proje URL'sini
+ve public anon/publishable anahtarını tanımlayın:
 
-Yeni kurulumda Supabase SQL Editor'de `supabase/sayder-kurulum.sql` dosyasının
-tamamını çalıştırın. Script tabloları, indeksleri, RLS kurallarını ve görsel
-bucket'ını kurar; Authentication > Users'ta bulunan `sayder@sunideri.com`
-hesabını admin olarak atar. Kategori veya ürün kaydı otomatik eklenmez.
+```dotenv
+VITE_SUPABASE_URL=https://PROJECT_REF.supabase.co
+VITE_SUPABASE_ANON_KEY=PUBLIC_KEY
+```
 
-Başka bir projede yalnız şema için `supabase/setup.sql` kullanılabilir. İlk admin
-hesabını Authentication > Users üzerinden oluşturup e-postasını doğrulayın.
-Ardından SQL Editor'de e-postayı uygun değerle değiştirip çalıştırın:
+```bash
+pnpm dev
+```
+
+Katalog `/`, yönetim `/admin.html` adresinde açılır. Ortam değişkeni değiştiğinde
+sunucuyu yeniden başlatın. HTML dosyalarını doğrudan `file://` ile açmayın.
+
+Mevcut bağlantının public varsayılanları `js/publicConfig.js` içindedir.
+`VITE_` değişkenleri bu değerlerin önüne geçer. Public anahtar tarayıcıda görünür;
+yetkilendirme veritabanındaki RLS politikalarıyla yapılır. `service_role`,
+`sb_secret_` veya hesap şifresini istemci koduna eklemeyin. Derleme ayrıcalıklı
+anahtarları reddeder. `.env.local` Git'e dahil edilmez.
+
+## Supabase kurulumu
+
+1. Authentication → Users bölümünden yönetici hesabını oluşturup doğrulayın.
+2. SQL Editor'de `supabase/sayder-kurulum.sql` dosyasını çalıştırın. Bu dosya
+   `sayder@sunideri.com` hesabını yönetici olarak atar.
+3. Başka bir yönetici için aşağıdaki sorgudaki e-posta adresini değiştirin.
+4. Authentication ayarlarında herkese açık kullanıcı kaydını kapatın.
 
 ```sql
 insert into public.admin_users(user_id)
@@ -84,73 +82,69 @@ select id from auth.users where lower(email)=lower('sayder@sunideri.com')
 on conflict(user_id) do nothing;
 ```
 
-Auth ayarlarından herkese açık kullanıcı kaydını kapatın. Admin atamasını
-kaldırmak için SQL Editor'de ilgili `admin_users` satırını silin.
-Giriş yapmış olmak yönetici olmak için yeterli değildir; tüm yazma işlemleri
-admin_users üyeliğini kontrol eden RLS ile korunur. Anon ziyaretçiler yalnız
-aktif ürünleri ve kategorileri okuyabilir. Admin listesi tarayıcıdan değiştirilemez.
-
-## Yerel geliştirme
-
-Node.js 22.12+ (Node 24 önerilir) ve pnpm 11.25.0 kullanın:
-
-```bash
-npm install -g pnpm@11.25.0
-pnpm install --frozen-lockfile
-pnpm dev
-```
-
-Katalog `/`, yönetim `/admin.html` adresindedir. Uygulama yalnız Supabase'den
-veri okur; bağlantı yoksa anlaşılır bir hata ve yeniden deneme kontrolü gösterir.
-HTML belgelerini `file://` ile açmayın.
-
-`js/publicConfig.js`, tarayıcı istemcisine ait public proje URL'si ve anon
-anahtarı içerir. Bu değerler tarayıcıda görünür; veri değiştirme iznini RLS
-belirler. service_role, sb_secret_ ve hesap şifresi bu dosyaya konulamaz.
-Derleme, yanlışlıkla ayrıcalıklı anahtar girilirse durur.
-
-Başka projeye bağlanmak veya firma bilgilerini değiştirmek için `.env.example`
-şablonunu `.env.local` dosyasına kopyalayıp geçerli değerleri girin. VITE_ değerleri
-publicConfig.js değerlerinin önüne geçer. Değişiklikten sonra dev sunucusunu
-yeniden başlatın. `.env.local` GitHub'a gönderilmez.
+Yalnız şema kurulumu için `supabase/setup.sql` kullanılabilir. Kurulum kategori
+veya ürün eklemez. Ziyaretçiler yalnız aktif ürünleri ve kategorileri okuyabilir.
+Ürün, kategori ve Storage yazma işlemleri `admin_users` üyeliği gerektirir;
+giriş yapmış olmak tek başına yönetim yetkisi vermez. Yönetici atamaları
+veritabanından yönetilir.
 
 ## Ürün yönetimi
 
-Yetkili e-posta ve kendi şifrenizle yönetim paneline giriş yapın:
+1. Yetkili hesapla yönetim paneline giriş yapın.
+2. Kategori oluşturun veya mevcut bir kategori seçin.
+3. Ürün adı, benzersiz kod, renk, materyal ve açıklama girin.
+4. En (cm), kalınlık (mm), rulo uzunluğu (m), stok miktarı ve birimini belirleyin.
+5. HTTPS görsel adresi veya en fazla 5 MB JPG, PNG, WebP ya da AVIF ekleyin.
+6. Yayın durumunu seçip kaydedin.
 
-1. Kategori oluşturun; ad ve slug girin. Türkçe adlar otomatik slug'a çevrilebilir.
-2. Ürün adı, benzersiz ürün kodu, kategori, renk ve materyali girin.
-3. En (cm), kalınlık (mm) ve rulo uzunluğunu (metre) girin.
-4. Kalan stok miktarını ve birimini (metre/rulo/adet) belirleyin.
-5. HTTPS görsel URL'si veya en fazla 5 MB JPG/PNG/WebP/AVIF dosyası ekleyin.
-6. Ürünün katalogda yayınlanıp yayınlanmayacağını seçip kaydedin.
+Stok negatif olamaz. Rulo uzunluğu ile kalan stok ayrı alanlardır. Satışla
+otomatik stok düşürme yapılmaz. Ürün silme işlemi onay gerektirir. Ürünlerde
+kullanılan kategori, ilişkili ürünler taşınana kadar silinemez.
 
-Stok negatif olamaz. Rulo uzunluğu ve kalan stok birbirinden bağımsızdır.
-Bu uygulama katalogdur; sipariş veya satışla otomatik stok düşürme yapmaz.
-Liste üzerinde düzenleme, yayın durumu değiştirme ve onaylı silme kontrolleri vardır.
-Kullanılan kategori, ürünler başka bir kategoriye taşınana kadar silinemez.
+Katalog sayfa başına 12, yönetim paneli 25 kayıt getirir. Arama 250 ms gecikmeyle
+çalışır. Ürün bağlantıları `/?product=<uuid>` veya `/urun/<uuid>` biçimindedir.
+Yükleme sırasında skeleton, hata durumunda yeniden deneme kontrolü gösterilir.
+Azaltılmış hareket tercihinde skeleton animasyonu kapanır.
 
-Katalogda arama ürün adı, kodu, renk, materyal ve ölçü metnini tarar; debounce
-250 ms'dir. Katalog 12, yönetim 25 kayıtlık sunucu sayfalaması kullanır.
-Stokta olanlar filtresi `stock_quantity > 0` koşulunu uygular. Ürün linkleri
-`/?product=<uuid>` ve Vercel üzerinde `/urun/<uuid>` biçimindedir.
+## Dil desteği
 
-## Görseller ve Storage
+Türkçe, İngilizce, Arapça, Rusça, Almanca, Fransızca, İspanyolca, Bulgarca,
+Yunanca, Gürcüce, Ermenice, Azerbaycanca, Farsça, Romence, Ukraynaca, İbranice,
+Kürtçe Kurmancî ve Soranî desteklenir. Seçim tarayıcıda saklanır;
+`?lang=bg` gibi bağlantılarla doğrudan dil seçilebilir.
 
-Gerçek ürün fotoğrafları URL veya Supabase Storage ile yönetilir. Görseli
-bulunmayan ürünlerde yalnız nötr bir yer tutucu gösterilir.
-`product-images` public bucket'tır: dosya URL'sini bilen herkes dosyayı okuyabilir.
-Yükleme/değiştirme/silme izinleri yalnız admin'e açıktır. Pasif ürünün dosyasını
-gizlemek gerekiyorsa private bucket ve signed URL tasarımı gerekir.
+Arapça, Farsça, İbranice ve Soranî sağdan sola gösterilir. Dil değişiminde form
+ve arama değerleri korunur. WhatsApp mesajları ve stok sayıları seçili dile göre
+biçimlendirilir. Ürün adları, renkler ve açıklamalar girildikleri dilde kalır.
+Standart kategori adları çevrilir; özel kategori adları korunur.
 
-Yeni dosyalar UUID'li yollarla yüklenir. Veritabanı kaydı başarısız olursa yeni
-dosya temizlenmeye çalışılır. Ürün/görsel değişiminde eski dosya otomatik silinmez;
-başka ürün aynı URL'yi kullanabilir. Kullanılmayan dosyaları Storage'da kontrollü
-temizleyin. Ağ kopması sonrası panelde işlemin sonucunu kontrol edin.
+Arayüz metinleri `js/translations.js` ve `js/translations-extra.js` içindedir.
+Çeviriler uygulamayla birlikte sunulur; harici çeviri servisi kullanılmaz.
 
-## GitHub ve Vercel
+## Görseller ve marka
 
-Kilit dosyasını commit edin; node_modules, dist ve yerel env dosyaları Git'e girmez:
+Kurumsal kaynak logo `public/sayder-original.png`, site logosu
+`public/sayder-logo.webp` içindedir. İkonlar soldaki amblemi kullanır.
+Logo ve ikon arka planları şeffaftır. Renk ve tipografi kuralları `BRAND.md`,
+uygulama stilleri `css/identity.css` içindedir.
+
+`product-images` public Storage bucket'ıdır. Görsellerin URL'sini bilen herkes
+bunları okuyabilir; yükleme ve silme yalnız yöneticilere açıktır. Gizli dosyalar
+private bucket ve signed URL gerektirir. Yeni dosyalar UUID yollarıyla yüklenir.
+Başarısız ürün kaydında yeni yükleme temizlenir. Eski görseller, başka ürünlerce
+kullanılabilecekleri için otomatik silinmez; Storage üzerinden kontrol edilmelidir.
+
+## Vercel yayını
+
+GitHub deposunu Vercel'e bağlayın:
+
+| Ayar | Değer |
+| --- | --- |
+| Framework | Vite |
+| Node.js | 24.x |
+| Install Command | `pnpm install --frozen-lockfile` |
+| Build Command | `pnpm build` |
+| Output Directory | `dist` |
 
 ```bash
 git add .
@@ -158,17 +152,13 @@ git commit -m "Update SAYDER catalog"
 git push origin main
 ```
 
-Vercel'de GitHub deposunu import edin. Framework Vite, Node.js 24.x,
-Install Command `pnpm install --frozen-lockfile`, Build Command `pnpm build`,
-Output Directory `dist`. Ayarlar `vercel.json` dosyasında bulunur.
+Ana adres `https://www.sayder.tech/` olarak tanımlıdır; `sayder.tech` bu adrese
+yönlendirilir. Ortam değişkenleri değiştirildiğinde Redeploy gerekir.
 
-SAYDER public bağlantısı kodda olduğundan bağlantı için env değişkeni zorunlu
-değildir. Başka bağlantı veya firma bilgileri için şu değerler kullanılabilir:
-
-| Değişken | Kullanım |
+| Ortam değişkeni | Kullanım |
 | --- | --- |
 | VITE_SUPABASE_URL | Supabase proje URL'si |
-| VITE_SUPABASE_ANON_KEY | Publishable veya legacy anon key |
+| VITE_SUPABASE_ANON_KEY | Public anon/publishable anahtar |
 | VITE_COMPANY_NAME | Firma adı |
 | VITE_COMPANY_EMAIL | İletişim e-postası |
 | VITE_COMPANY_PHONE | Telefon |
@@ -176,11 +166,12 @@ değildir. Başka bağlantı veya firma bilgileri için şu değerler kullanıla
 | VITE_WORKING_HOURS | Çalışma saatleri |
 | VITE_WHATSAPP_NUMBER | Ülke kodu dahil yalnız rakamlar |
 
-Environment Variables değişiklikleri için Redeploy gerekir. Key rotasyonunda
-publicConfig.js veya env değerlerini güncelleyin. Özel Supabase domain'i
-kullanılırsa URL doğrulaması ve CSP connect-src listesi de güncellenmelidir.
+Canonical, Open Graph, paylaşım görseli ve işletme JSON-LD bilgileri `index.html`
+içindedir. İletişim bilgileri değiştiğinde JSON-LD de güncellenmelidir.
+Google Search Console'da alan adını doğrulayıp `sitemap.xml` gönderin.
+Yönetim paneli arama motorlarına `noindex` olarak sunulur.
 
-## Doğrulama
+## Kontroller
 
 ```bash
 pnpm test
@@ -188,18 +179,6 @@ pnpm build
 pnpm preview
 ```
 
-Testler PGlite PostgreSQL motorunda RLS, admin ataması, yetki iptali, CRUD,
-Storage izinleri, foreign key, ölçü ve stok kısıtlarını doğrular. HTML kaçışı,
-HTTPS görsel adresi, Türkçe slug ve arama karakterleri de kontrol edilir.
-
-Firma iletişim bilgileri kullanıcının sağladığı kaynaklardan alınmıştır:
-[Yandex](https://yandex.com.tr/maps/-/CXBIr8Ym),
-[Facebook](https://www.facebook.com/groups/877165027323660),
-[Instagram](https://www.instagram.com/saydersunideri/).
-
-Resmi teknik kaynaklar:
-[Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security),
-[Supabase Auth](https://supabase.com/docs/reference/javascript/auth-signinwithpassword),
-[Storage](https://supabase.com/docs/guides/storage/security/access-control),
-[Vite](https://vite.dev/guide/env-and-mode),
-[Vercel](https://vercel.com/docs/project-configuration).
+Testler RLS, yönetici atama/iptal, CRUD, Storage izinleri, veri kısıtları,
+HTML kaçışı, güvenli görsel adresleri, arama karakterleri ve dil sözlüklerinin
+parametre bütünlüğünü kontrol eder.

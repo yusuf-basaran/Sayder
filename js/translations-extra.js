@@ -1,4 +1,4 @@
-// Build-time machine translations; no visitor content is sent to a translation service.
+// Bölgesel arayüz çevirileri.
 export const extraLanguages = {
   "bg": [
     "Български",
