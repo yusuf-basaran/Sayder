@@ -23,6 +23,8 @@ Kullanıcının sağladığı kurumsal PNG dosyası `public/sayder-original.png`
 korunur. Sitede `sayder-logo.webp` ile tam logo kullanılır. Soldaki renkli amblem
 ikonlar için ayrılmıştır; `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png`
 ve `logo-512.png` bu amblemi kullanır. Paylaşım kartı da tam kurumsal logoyu içerir.
+Logo ve ikon dosyalarının arka planı şeffaftır. Marka renkleri, tipografi ve
+bileşen kuralları `BRAND.md` içinde; uygulama stilleri `css/identity.css` içindedir.
 
 ## Veritabanı ve yönetici kurulumu
 
